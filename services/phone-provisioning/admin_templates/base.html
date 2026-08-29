@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Автопровижининг телефонов</title>
+<style>
+  :root {
+    --petrol: #5E4433; --petrol-dark: #402D20;
+    --petrol-tint-40: #D9CEBF; --petrol-tint-20: #EAE3DA;
+    --accent-red: #B3483C; --accent-green: #6B8A57;
+  }
+  * { box-sizing: border-box; }
+  body { font-family: "Segoe UI", "Avenir Next Cyr", system-ui, sans-serif; margin: 0; background: var(--petrol-tint-20); color: #28201A; }
+
+  .topstrip {
+    background: #fff; padding: 14px 24px; display: flex; justify-content: space-between;
+    align-items: center; flex-wrap: wrap; gap: 12px; border-bottom: 1px solid var(--petrol-tint-20);
+  }
+  .logo-group { display: flex; align-items: center; }
+  .logo-link { display: flex; align-items: center; line-height: 0; }
+  .logo-mark { width: 34px; height: 34px; display: block; }
+  .logo-word { font-size: 15px; font-weight: 700; color: #28201A; margin-left: 10px; }
+  .descriptor {
+    font-size: 11px; letter-spacing: 2px; color: var(--petrol); opacity: 0.75;
+    margin-left: 12px; padding-left: 12px; border-left: 1px solid var(--petrol-tint-40); white-space: nowrap;
+  }
+  .topstrip-user { display: flex; align-items: center; gap: 14px; font-size: 14px; color: var(--petrol-dark); }
+  .topstrip-user a { color: var(--petrol-dark); text-decoration: none; opacity: 0.75; }
+  .topstrip-user a:hover { opacity: 1; }
+  .topstrip-user .avatar {
+    width: 30px; height: 30px; border-radius: 50%; background: var(--petrol-tint-20); color: var(--petrol);
+    display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px;
+  }
+
+  header.panel-nav {
+    background: linear-gradient(135deg, var(--petrol) 0%, var(--petrol-dark) 100%);
+    color: white; padding: 12px 24px; display: flex; align-items: center; gap: 20px; flex-wrap: wrap;
+  }
+  header.panel-nav a { color: white; text-decoration: none; font-size: 14px; opacity: .85; }
+  header.panel-nav a:hover { opacity: 1; text-decoration: underline; }
+
+  main { padding: 24px; max-width: 1200px; margin: 0 auto; }
+  table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(25,108,127,.10); }
+  th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--petrol-tint-20); font-size: 14px; }
+  th { background: var(--petrol-tint-20); font-weight: 600; color: var(--petrol-dark); }
+  tr:hover td { background: #F8F5F0; }
+  .btn { display: inline-block; padding: 8px 16px; border-radius: 6px; border: none; background: var(--petrol); color: white; font-size: 14px; font-weight: 600; cursor: pointer; text-decoration: none; }
+  .btn:hover { background: var(--petrol-dark); }
+  .btn.secondary { background: #7A6F62; }
+  .btn.danger { background: var(--accent-red); }
+  .btn.warn { background: #8C7259; } /* перезагрузка — заметно, но не тревожно-красным как удаление */
+  .btn.warn:hover { background: #007C8E; }
+  .btn.on { background: var(--accent-green); }
+  .btn.on:hover { background: #1F7A72; }
+  .btn.off { background: var(--petrol-tint-40); color: var(--petrol-dark); }
+  .btn.off:hover { background: #A9BCBF; }
+  .btn.small { padding: 4px 10px; font-size: 12px; }
+  input[type=text], input[type=password], select, textarea {
+    padding: 8px 10px; border: 1px solid var(--petrol-tint-40); border-radius: 6px; font-size: 14px; width: 100%;
+  }
+  .field { margin-bottom: 14px; }
+  .field label { display: block; margin-bottom: 4px; font-size: 13px; color: #556; font-weight: 500; }
+  .flash { padding: 10px 14px; border-radius: 6px; margin-bottom: 16px; font-size: 14px; }
+  .flash.ok { background: #EAF0E2; color: #3F5A34; }
+  .flash.error { background: #F3E2DC; color: #8C3A2E; }
+  .toolbar { display: flex; gap: 10px; margin-bottom: 16px; align-items: center; }
+  .toolbar input[type=text] { max-width: 280px; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 20px; }
+  .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(25,108,127,.10); }
+  .mac { font-family: monospace; }
+  .site-footer { max-width: 1200px; margin: 24px auto 0; padding: 16px; color: #7A6F62; font-size: 12px; text-align: center; }
+</style>
+</head>
+<body>
+
+<div class="topstrip">
+    <div class="logo-group">
+        <a href="/" class="logo-link">
+            <svg class="logo-mark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" role="img" aria-label="ATC Portal"><rect width="40" height="40" rx="9" fill="#5E4433"/><path d="M11 26c0-7 4-11 9-11s9 4 9 11" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="round"/><circle cx="20" cy="26" r="2.6" fill="#fff"/></svg>
+            <span class="logo-word">ATC Portal</span>
+        </a>
+        <span class="descriptor">ПРОВИЖИНИНГ</span>
+    </div>
+    {% if g.remote_user %}
+    <nav class="topstrip-user">
+        <span>{{ g.remote_name }}</span>
+        <a href="/">← Портал</a>
+        <a href="/logout">Выход</a>
+        <div class="avatar">{{ g.remote_name[0]|upper }}</div>
+    </nav>
+    {% endif %}
+</div>
+
+<header class="panel-nav">
+  <a href="{{ url_for('devices_list') }}">Устройства</a>
+  <a href="{{ url_for('import_devices') }}">Импорт</a>
+  <a href="{{ url_for('export_devices') }}">Экспорт</a>
+  <a href="{{ url_for('firmware_page') }}">Прошивки</a>
+  <a href="{{ url_for('settings_page_default') }}">Настройки</a>
+  <a href="{{ url_for('color_settings_page_default') }}">Характеристики</a>
+</header>
+<main>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+      <div class="flash {{ category }}">{{ message }}</div>
+    {% endfor %}
+  {% endwith %}
+  {% block content %}{% endblock %}
+</main>
+<footer class="site-footer">
+  <span>© ATC Portal — Провижининг · разработка: инженер электросвязи Мусин Р.И.</span>
+</footer>
+</body>
+</html>

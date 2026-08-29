@@ -1,0 +1,53 @@
+{% if last_error %}
+<div class="flash flash-error">Ошибка опроса АТС: {{ last_error }}</div>
+{% endif %}
+
+<div class="results-summary">
+    Найдено: {{ total }}
+    {% if last_update %}<span class="dim">· обновлено {{ last_update }}</span>{% endif %}
+</div>
+
+<table class="cdr-table">
+    <thead>
+        <tr>
+            {% macro sort_link(col, label) %}
+                {% set new_dir = 'desc' if sort == col and direction == 'asc' else 'asc' %}
+                <a href="{{ url_for('numbers_page', q=query, sort=col, dir=new_dir) }}" style="color:inherit; text-decoration:none;">
+                    {{ label }}{% if sort == col %} {{ '▲' if direction == 'asc' else '▼' }}{% endif %}
+                </a>
+            {% endmacro %}
+            <th>Статус</th>
+            <th>{{ sort_link('number', 'Номер') }}</th>
+            <th>{{ sort_link('name', 'Имя') }}</th>
+            <th>{{ sort_link('type', 'Тип') }}</th>
+            <th>{{ sort_link('ip', 'IP и порт') }}</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for row in rows %}
+        <tr>
+            <td>
+                {% if row.status == 'Avail' %}
+                <span class="status-dot status-online" title="В сети"></span>
+                {% else %}
+                <span class="status-dot status-offline" title="Не в сети"></span>
+                {% endif %}
+            </td>
+            <td>{{ row.number }}</td>
+            <td>{{ row.name }}</td>
+            <td>{{ row.type }}</td>
+            <td>{% if row.ip %}{{ row.ip }}:{{ row.port }}{% else %}<span class="dim">—</span>{% endif %}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="5" class="empty-state">Ничего не найдено</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% if total_pages > 1 %}
+<div class="pagination">
+    {% if page > 1 %}<a href="{{ url_for('numbers_page', q=query, page=page-1, sort=sort, dir=direction) }}">← Назад</a>{% endif %}
+    <span>Страница {{ page }} из {{ total_pages }}</span>
+    {% if page < total_pages %}<a href="{{ url_for('numbers_page', q=query, page=page+1, sort=sort, dir=direction) }}">Вперёд →</a>{% endif %}
+</div>
+{% endif %}

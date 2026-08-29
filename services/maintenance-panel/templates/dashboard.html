@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Статус — Обслуживание{% endblock %}
+{% block content %}
+<h1>Статус системы</h1>
+
+{% if core.error %}
+<div class="flash flash-error">Asterisk AMI недоступен: {{ core.error }}</div>
+{% else %}
+<div class="core-summary">
+    <div class="core-metric">
+        <div class="value">{{ core.active_channels or '—' }}</div>
+        <div class="label">активных каналов</div>
+    </div>
+    <div class="core-metric">
+        <div class="value">{{ core.active_calls or '—' }}</div>
+        <div class="label">активных вызовов</div>
+    </div>
+    <div class="core-metric">
+        <div class="value" style="font-size:16px;">{{ core.uptime_human or '—' }}</div>
+        <div class="label">Asterisk работает без перезапуска</div>
+    </div>
+    <div class="core-metric" style="text-align:left;">
+        <div style="font-size:12px;color:#8A9A9C;">Запущен:</div>
+        <div style="font-size:14px;">{{ core.startup_at or '—' }}</div>
+    </div>
+</div>
+{% endif %}
+
+<div class="filters" style="margin-top:16px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+        <div>
+            <strong>Резервная копия</strong>
+            <p class="hint" style="margin:4px 0 0;">Базы пользователей/панелей, конфиги nginx и Asterisk AMI, дамп конфигурации FreePBX (номера, транки, маршруты) — без истории звонков и записей (они отдельно, см. «Место на диске»)</p>
+        </div>
+        <a href="{{ url_for('backup_download') }}" class="btn" style="text-decoration:none;">⬇ Скачать архив</a>
+    </div>
+    <hr style="border:none;border-top:1px solid var(--petrol-tint-20);margin:14px 0;">
+    <form method="post" action="{{ url_for('backup_restore') }}" enctype="multipart/form-data"
+          onsubmit="return confirm('Восстановить конфигурацию из этого архива? Текущие файлы будут заменены (старые версии сохранятся рядом с суффиксом .before-restore), затронутые службы перезапустятся. Дамп базы FreePBX (если есть в архиве) сюда не входит — для него отдельная страница ниже.')"
+          style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <label style="font-size:13px;color:#556;">Восстановить из архива:</label>
+        <input type="file" name="backup_file" accept=".gz,.tar.gz" required style="font-size:13px;">
+        <button type="submit" class="btn-sm btn-sm-danger">⬆ Восстановить</button>
+    </form>
+    <p class="hint" style="margin-top:10px;">
+        <a href="{{ url_for('backup_db_dump') }}">Применить дамп FreePBX из резервной копии →</a>
+        (отдельно, с осторожностью в HA-кластере — см. страницу)
+    </p>
+</div>
+
+<h2 style="font-size:16px;color:#556;margin-top:24px;">Сервисы портала</h2>
+<div class="services-grid">
+    {% for s in statuses %}
+    <div class="service-card">
+        <div class="name">{{ s.label }}</div>
+        <div class="service-status {{ 'up' if s.active else 'down' }}">
+            <span class="dot"></span>
+            {{ 'работает' if s.active else 'не активен' }}
+        </div>
+        <div class="service-actions">
+            <form method="post" action="{{ url_for('restart_service', unit=s.unit) }}"
+                  onsubmit="return confirm('Перезапустить «{{ s.label }}»? Панель будет недоступна на несколько секунд.')">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                <button type="submit" class="btn-sm">Перезапустить</button>
+            </form>
+            <a href="{{ url_for('logs', unit=s.unit) }}" class="btn-sm" style="text-decoration:none;display:inline-block;">Логи</a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

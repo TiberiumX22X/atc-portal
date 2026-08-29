@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Безопасный возврат в кластер — Обслуживание{% endblock %}
+{% block content %}
+<h1>Безопасный возврат в кластер</h1>
+
+<div class="flash flash-error">
+    Используйте это ПОСЛЕ того, как этот сервер был недоступен (выключен, переустанавливался),
+    а второй сервер всё это время работал и принимал звонки. Скрипт заберёт актуальные данные
+    со второго сервера и только потом включит keepalived на этом узле — так новые данные,
+    накопленные за время простоя, не потеряются.
+</div>
+<div class="flash flash-error">
+    Не запускайте это, если keepalived на этом сервере уже работает — сначала остановите его:
+    <pre class="console-box" style="margin-top:8px;">systemctl stop keepalived</pre>
+</div>
+
+<form method="post" class="ha-setup-form" style="max-width:520px;">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+    <label>Пароль пользователя репликации</label>
+    <input type="text" name="repl_pass" required>
+    <p class="hint">Тот же пароль, что задавался при первоначальной настройке HA.</p>
+
+    <h3 style="margin-top:24px;font-size:15px;color:#556;">Если SSH-ключ к соседу не работает (необязательно)</h3>
+    <p class="hint">Заполните, если этот сервер был переустановлен и его ключ у соседа не сохранился —
+        настройка сама разложит ключ через обычного администратора (не root).</p>
+
+    <label>Логин администратора второго сервера</label>
+    <input type="text" name="peer_user">
+
+    <label style="margin-top:14px;">Пароль администратора второго сервера</label>
+    <input type="password" name="peer_password">
+
+    <button type="submit" class="btn-primary" style="margin-top:20px;">Начать безопасный возврат</button>
+</form>
+{% endblock %}

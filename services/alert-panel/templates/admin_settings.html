@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Настройки AMI{% endblock %}
+{% block content %}
+<div class="card">
+  <h2>Настройки AMI</h2>
+  <form method="post">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <label>AMI host</label><input type="text" name="ami_host" value="{{ settings.get('ami_host','') }}">
+    <label>AMI port</label><input type="text" name="ami_port" value="{{ settings.get('ami_port','') }}">
+    <label>AMI username</label><input type="text" name="ami_username" value="{{ settings.get('ami_username','') }}">
+    <label>AMI secret</label><input type="text" name="ami_secret" value="{{ settings.get('ami_secret','') }}">
+    <label>Технология канала (PJSIP/SIP)</label><input type="text" name="channel_tech" value="{{ settings.get('channel_tech','') }}">
+    <button type="submit">Сохранить</button>
+  </form>
+  <p class="muted" style="margin-top:14px;">
+    Dialplan-контекст <code>alert-panel-room</code> создаётся автоматически install.sh
+    в <code>/etc/asterisk/extensions_custom.conf</code>.
+  </p>
+</div>
+{% endblock %}

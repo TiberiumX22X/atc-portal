@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+{% block title %}Пользователи — Портал АТС{% endblock %}
+{% block content %}
+<h1>Пользователи</h1>
+<p class="hint">Единый список для всех панелей. Роль «Администратор» открывает управление пользователями, все административные функции внутри каждой панели и видит вообще всё; «Оператор» видит только те панели, что отмечены в колонке «Панели».</p>
+
+<table class="users-table">
+    <thead>
+        <tr>
+            <th>Логин</th>
+            <th>Имя</th>
+            <th>Роль</th>
+            <th>Панели</th>
+            <th>Статус</th>
+            <th>Последний вход</th>
+            <th>Действия</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for u in users %}
+        <tr>
+            <td>{{ u['username'] }}</td>
+            <td>{{ u['full_name'] or '—' }}</td>
+            <td>
+                <form class="inline-form" method="post" action="{{ url_for('users_set_role', username=u['username']) }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                    <select name="role" onchange="this.form.submit()">
+                        <option value="admin" {{ 'selected' if u['role'] == 'admin' }}>Администратор</option>
+                        <option value="operator" {{ 'selected' if u['role'] == 'operator' }}>Оператор</option>
+                    </select>
+                </form>
+            </td>
+            <td>
+                {% if u['role'] == 'admin' %}
+                    <span class="dim">все (администратор)</span>
+                {% else %}
+                    {% set ua = u['allowed_panels'] %}
+                    <details>
+                        <summary style="cursor:pointer;font-size:13px;color:var(--petrol);">
+                            {% if ua == '*' %}все{% elif ua %}{{ ua.split(',')|length }} из {{ panels|length }}{% else %}нет доступа{% endif %}
+                        </summary>
+                        <form method="post" action="{{ url_for('users_set_panels', username=u['username']) }}" style="margin-top:6px;">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                            <div class="panel-checkboxes">
+                                {% set ua_list = ua.split(',') if ua and ua != '*' else [] %}
+                                {% for p in panels %}
+                                <label>
+                                    <input type="checkbox" name="panels" value="{{ p.key }}"
+                                           {{ 'checked' if ua == '*' or p.key in ua_list }}>
+                                    {{ p.name }}
+                                </label>
+                                {% endfor %}
+                            </div>
+                            <button type="submit" class="btn-sm" style="margin-top:6px;">Сохранить</button>
+                        </form>
+                    </details>
+                {% endif %}
+            </td>
+            <td>
+                {% if u['is_active'] %}
+                    <span class="badge badge-admin">активен</span>
+                {% else %}
+                    <span class="badge badge-inactive">отключён</span>
+                {% endif %}
+            </td>
+            <td class="dim">{{ u['last_login'] or 'ни разу' }}</td>
+            <td>
+                <form class="inline-form" method="post" action="{{ url_for('users_toggle_active', username=u['username']) }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                    <button type="submit" class="btn-sm">
+                        {{ 'Отключить' if u['is_active'] else 'Включить' }}
+                    </button>
+                </form>
+                <form class="inline-form" method="post" action="{{ url_for('users_reset_password', username=u['username']) }}"
+                      onsubmit="return confirmResetPassword(this)">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                    <input type="hidden" name="password" value="">
+                    <button type="button" class="btn-sm"
+                            onclick="promptResetPassword(this.form)">Сбросить пароль</button>
+                </form>
+                <form class="inline-form" method="post" action="{{ url_for('users_delete', username=u['username']) }}"
+                      onsubmit="return confirm('Удалить пользователя {{ u['username'] }}?')">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                    <button type="submit" class="btn-sm btn-sm-danger">Удалить</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<div class="add-user-box">
+    <h2 style="font-size:16px;margin-top:0;">Добавить пользователя</h2>
+    <form method="post" action="{{ url_for('users_add') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <label>Логин</label>
+        <input type="text" name="username" required>
+        <label>Имя (необязательно)</label>
+        <input type="text" name="full_name">
+        <label>Пароль (минимум 6 символов)</label>
+        <input type="password" name="password" required minlength="6">
+        <label>Роль</label>
+        <select name="role">
+            <option value="operator">Оператор</option>
+            <option value="admin">Администратор</option>
+        </select>
+        <label>Доступные панели (только для роли «Оператор» — администратор видит всё)</label>
+        <div class="panel-checkboxes">
+            {% for p in panels %}
+            <label><input type="checkbox" name="panels" value="{{ p.key }}" checked> {{ p.name }}</label>
+            {% endfor %}
+        </div>
+        <button type="submit">Добавить</button>
+    </form>
+</div>
+
+<script>
+function promptResetPassword(form) {
+    const pwd = prompt("Новый пароль (минимум 6 символов):");
+    if (pwd === null) return;
+    form.password.value = pwd;
+    form.requestSubmit();
+}
+function confirmResetPassword(form) {
+    return form.password.value.length >= 6;
+}
+</script>
+{% endblock %}

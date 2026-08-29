@@ -1,0 +1,217 @@
+:root {
+    --petrol: #5E4433;
+    --petrol-dark: #402D20;
+    --petrol-tint-40: #D9CEBF;
+    --petrol-tint-20: #EAE3DA;
+    --accent-teal: #8C7259;
+    --accent-teal-light: #C9B79E;
+    --accent-green: #6B8A57;
+    --accent-red: #B3483C;
+    --ink: #28201A;
+    --font: "Segoe UI", "Avenir Next Cyr", system-ui, -apple-system, sans-serif;
+}
+
+* { box-sizing: border-box; }
+body {
+    font-family: var(--font);
+    margin: 0;
+    background: var(--petrol-tint-20);
+    color: var(--ink);
+}
+
+/* --- светлая полоса с логотипом (везде на всех панелях одинаково) --- */
+.topstrip {
+    background: #fff;
+    padding: 14px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    border-bottom: 1px solid var(--petrol-tint-20);
+}
+.logo-group { display: flex; align-items: center; }
+.logo-link { display: flex; align-items: center; line-height: 0; }
+.logo-mark { width: 34px; height: 34px; display: block; }
+.logo-word { font-size: 15px; font-weight: 700; color: var(--ink); margin-left: 10px; }
+.descriptor {
+    font-size: 11px; letter-spacing: 2px; color: var(--petrol); opacity: 0.75;
+    margin-left: 12px; padding-left: 12px; border-left: 1px solid var(--petrol-tint-40);
+    white-space: nowrap;
+}
+.topstrip-user {
+    display: flex; align-items: center; gap: 14px; font-size: 14px; color: var(--petrol-dark);
+}
+.topstrip-user a { color: var(--petrol-dark); text-decoration: none; opacity: 0.75; }
+.topstrip-user a:hover { opacity: 1; }
+.topstrip-name { opacity: 0.8; }
+.topstrip-user .avatar {
+    width: 30px; height: 30px; border-radius: 50%; background: var(--petrol-tint-20);
+    color: var(--petrol); display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 13px;
+}
+
+/* --- совместимость со старой разметкой панелей (topbar), пока не все
+       перешли на .topstrip — тот же внешний вид, тёмный вариант --- */
+.topbar {
+    background: linear-gradient(135deg, var(--petrol) 0%, var(--petrol-dark) 100%);
+    color: #fff; padding: 14px 24px; display: flex; justify-content: space-between;
+    align-items: center; flex-wrap: wrap; gap: 10px;
+}
+.topbar-title { font-size: 18px; font-weight: 600; }
+.topbar-tabs { display: flex; gap: 4px; }
+.topbar-tabs a {
+    color: var(--accent-teal-light); text-decoration: none; padding: 6px 14px; border-radius: 6px;
+    font-size: 14px;
+}
+.topbar-tabs a.active { background: rgba(255,255,255,0.15); color: #fff; font-weight: 600; }
+.topbar-tabs a:hover { background: rgba(255,255,255,0.1); }
+.topbar-nav a { color: var(--accent-teal-light); margin-left: 16px; text-decoration: none; font-size: 13px; }
+.topbar-nav a:hover { text-decoration: underline; }
+.topbar-user { opacity: 0.9; font-size: 13px; }
+
+.site-footer {
+    max-width: 1100px; margin: 32px auto 0; padding: 16px; color: #6B5F52;
+    font-size: 12px; text-align: center;
+}
+
+.container { max-width: 1100px; margin: 24px auto; padding: 0 16px; }
+
+.flash { padding: 10px 14px; border-radius: 6px; margin-bottom: 16px; }
+.flash-error { background: #F3E2DC; color: #8C3A2E; border: 1px solid #D9B8AC; }
+.flash-success { background: #EAF0E2; color: #3F5A34; border: 1px solid #C9D6B8; }
+
+.auth-box {
+    max-width: 360px; margin: 60px auto; background: #fff; padding: 28px;
+    border-radius: 12px; box-shadow: 0 2px 10px rgba(25,108,127,0.10);
+}
+.auth-box h1 { font-size: 20px; margin-top: 0; color: var(--petrol-dark); }
+.auth-box label { display: block; margin-top: 12px; font-size: 13px; color: #556; }
+.auth-box input {
+    width: 100%; padding: 8px 10px; margin-top: 4px;
+    border: 1px solid var(--petrol-tint-40); border-radius: 6px; font-size: 14px;
+}
+.auth-box input:focus { outline: none; border-color: var(--petrol); }
+.auth-box button {
+    margin-top: 18px; width: 100%; padding: 10px; background: var(--petrol); color: #fff;
+    border: none; border-radius: 6px; font-size: 14px; cursor: pointer; font-weight: 600;
+}
+.auth-box button:hover { background: var(--petrol-dark); }
+.hint { color: #667; font-size: 13px; }
+
+.filters {
+    background: #fff; padding: 16px; border-radius: 10px;
+    box-shadow: 0 1px 4px rgba(25,108,127,0.08); margin-bottom: 16px;
+}
+.filters-row { display: flex; flex-wrap: wrap; gap: 12px; }
+.filter-field { flex: 1 1 200px; display: flex; flex-direction: column; }
+.filter-field label { font-size: 12px; color: #667; margin-bottom: 4px; }
+.filter-field input { padding: 7px 8px; border: 1px solid var(--petrol-tint-40); border-radius: 6px; font-size: 13px; }
+.filter-submit { flex-direction: row; align-items: flex-end; gap: 8px; flex: 0 0 auto; }
+.filter-submit button, .filter-submit .btn-secondary {
+    padding: 7px 16px; border-radius: 6px; font-size: 13px; cursor: pointer;
+    text-decoration: none; text-align: center;
+}
+.filter-submit button { background: var(--petrol); color: #fff; border: none; }
+.filter-submit .btn-secondary { background: var(--petrol-tint-20); color: var(--petrol-dark); border: 1px solid var(--petrol-tint-40); }
+
+.results-summary { color: #556; font-size: 13px; margin-bottom: 8px; }
+.dim { color: #8A7E72; font-size: 12px; }
+
+.cdr-table {
+    width: 100%; border-collapse: collapse; background: #fff;
+    border-radius: 10px; overflow: hidden; box-shadow: 0 1px 4px rgba(25,108,127,0.08);
+}
+.cdr-table th, .cdr-table td {
+    padding: 10px 12px; text-align: left; font-size: 13px; border-bottom: 1px solid var(--petrol-tint-20);
+}
+.cdr-table th { background: var(--petrol-tint-20); color: var(--petrol-dark); font-weight: 600; }
+.cdr-table tr:hover td { background: #F8F5F0; }
+.empty-state { text-align: center; color: #8A7E72; padding: 24px; }
+
+.status-dot { display: inline-block; width: 12px; height: 12px; border-radius: 50%; }
+.status-online { background: var(--accent-green); }
+.status-offline { background: var(--petrol-tint-40); }
+
+.pagination { margin-top: 16px; display: flex; gap: 16px; align-items: center; font-size: 13px; color: #556; }
+.pagination a { color: var(--petrol); text-decoration: none; }
+.pagination a:hover { text-decoration: underline; }
+
+.calls-counter {
+    background: #fff; border-radius: 12px; box-shadow: 0 1px 4px rgba(25,108,127,0.08);
+    padding: 48px; text-align: center; margin-top: 8px;
+}
+.calls-number { font-size: 72px; font-weight: 700; color: var(--petrol); line-height: 1; }
+.calls-label { font-size: 15px; color: #667; margin-top: 8px; }
+
+/* --- портал: сетка карточек панелей --- */
+.panel-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 16px; margin-top: 16px;
+}
+.panel-card {
+    background: #fff; border-radius: 14px; box-shadow: 0 2px 6px rgba(25,108,127,0.08);
+    padding: 26px 20px; text-decoration: none; color: var(--ink); text-align: center;
+    transition: transform .15s, box-shadow .15s, border-color .15s;
+    border: 1px solid transparent;
+}
+.panel-card:hover {
+    transform: translateY(-3px); box-shadow: 0 10px 24px rgba(25,108,127,0.16);
+    border-color: var(--petrol-tint-40);
+}
+.panel-card .icon { font-size: 32px; display: block; margin-bottom: 10px; }
+.panel-card .name { font-weight: 600; font-size: 15px; }
+
+.users-table {
+    width: 100%; border-collapse: collapse; background: #fff;
+    border-radius: 10px; overflow: hidden; box-shadow: 0 1px 4px rgba(25,108,127,0.08);
+    margin-top: 12px;
+}
+.users-table th, .users-table td { padding: 10px 12px; text-align: left; font-size: 13px; border-bottom: 1px solid var(--petrol-tint-20); }
+.users-table th { background: var(--petrol-tint-20); color: var(--petrol-dark); font-weight: 600; }
+.badge { padding: 2px 8px; border-radius: 10px; font-size: 12px; }
+.badge-admin { background: #EDE7DC; color: var(--petrol-dark); }
+.badge-operator { background: var(--petrol-tint-20); color: #556; }
+.badge-inactive { background: #F3E2DC; color: #8C3A2E; }
+.inline-form { display: inline; }
+.add-user-box { background: #fff; padding: 18px; border-radius: 10px; box-shadow: 0 1px 4px rgba(25,108,127,0.08); margin-top: 20px; max-width: 420px; }
+.add-user-box label { display: block; margin-top: 12px; font-size: 13px; color: #556; }
+.add-user-box label:first-of-type { margin-top: 0; }
+.add-user-box input, .add-user-box select {
+    width: 100%; padding: 8px 10px; margin-top: 4px; box-sizing: border-box;
+    border: 1px solid var(--petrol-tint-40); border-radius: 6px; font-size: 14px;
+}
+.add-user-box input:focus, .add-user-box select:focus { outline: none; border-color: var(--petrol); }
+.add-user-box button {
+    margin-top: 18px; width: 100%; padding: 10px; background: var(--petrol); color: #fff;
+    border: none; border-radius: 6px; font-size: 14px; cursor: pointer; font-weight: 600;
+}
+.add-user-box button:hover { background: var(--petrol-dark); }
+.panel-checkboxes { margin-top: 6px; display: flex; flex-direction: column; gap: 4px; }
+.panel-checkboxes label { display: flex; align-items: center; gap: 6px; margin-top: 0; font-size: 13px; font-weight: normal; }
+.panel-checkboxes input[type="checkbox"] { width: auto; margin-top: 0; }
+
+/* --- единый размер кнопок на всех панелях проекта ---
+       обычная: padding 8px 16px / 14px; компактная (в таблицах): 4px 10px / 12px */
+.btn, button.btn, .filter-submit button, .auth-box button {
+    padding: 8px 16px; border-radius: 6px; font-size: 14px; font-weight: 600;
+    border: none; cursor: pointer;
+}
+.btn-sm {
+    padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 600;
+    border: none; cursor: pointer; background: var(--petrol-tint-20); color: var(--petrol-dark);
+}
+.btn-sm:hover { background: var(--petrol-tint-40); }
+.btn-sm-danger { background: #F3E2DC; color: var(--accent-red); }
+.btn-sm-danger:hover { background: #E8CBBE; }
+
+/* --- компактные кнопки-иконки (▶ прослушать, ⬇ скачать, 🗑 удалить и т.п.) --- */
+.icon-btn, .icon-btn-delete {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 30px; height: 30px; border-radius: 6px; font-size: 14px;
+    background: var(--petrol-tint-20); color: var(--petrol-dark);
+    border: none; cursor: pointer; text-decoration: none; margin-right: 4px;
+}
+.icon-btn:hover { background: var(--petrol-tint-40); }
+.icon-btn-delete { background: #F3E2DC; color: var(--accent-red); }
+.icon-btn-delete:hover { background: #E8CBBE; }

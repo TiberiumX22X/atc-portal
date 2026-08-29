@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Оповещения{% endblock %}
+{% block content %}
+<div class="card">
+  <h2>Добавить тип оповещения</h2>
+  <form method="post" enctype="multipart/form-data">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="action" value="create">
+    <label>Название (например «Опасность БПЛА»)</label>
+    <input type="text" name="alert_name" required>
+    <label>Аудиофайл (необязательно, .wav/.mp3/.gsm/.ulaw/.alaw/.sln)</label>
+    <input type="file" name="file">
+    <button type="submit">Добавить</button>
+  </form>
+</div>
+<div class="card">
+  <h2>Список оповещений</h2>
+  <table>
+    <tr><th>Название</th><th>Файл</th><th>Добавил</th><th></th></tr>
+    {% for r in recordings %}
+    <tr>
+      <td>{{ r['alert_name'] }}</td>
+      <td>{{ r['filename'] or '—' }}</td>
+      <td>{{ r['created_by'] or '—' }}</td>
+      <td>
+        <form method="post" style="display:inline;">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <input type="hidden" name="action" value="delete">
+          <input type="hidden" name="recording_id" value="{{ r['id'] }}">
+          <button type="submit" onclick="return confirm('Удалить «{{ r['alert_name'] }}»?');">Удалить</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+{% endblock %}

@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Портал АТС{% endblock %}
+{% block content %}
+<h1>Панели</h1>
+<div class="panel-grid">
+    {% set allowed = session.get('allowed_panels', '*') %}
+    {% for p in panels %}
+    {% set is_admin = session.get('role') == 'admin' %}
+    {% set operator_has_access = not p.get('admin_only') and (allowed == '*' or p.key in allowed.split(',')) %}
+    {% if is_admin or operator_has_access %}
+    <a class="panel-card" href="{{ p.path }}">
+        <span class="icon">{{ p.icon }}</span>
+        <span class="name">{{ p.name }}</span>
+    </a>
+    {% endif %}
+    {% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card" style="max-width:640px;">
+  <h2 style="margin-top:0;">Прошивки по моделям</h2>
+  <table>
+    <tr><th>Модель</th><th>Файл</th><th>Размер</th><th>Включена</th><th></th></tr>
+    {% for f in firmware %}
+    <tr>
+      <td>{{ f.model }}</td>
+      <td>{{ f.filename }}</td>
+      <td>
+        {% if f.size_mb is none %}<span style="color:#dc2626;">файл не найден</span>
+        {% elif f.size_mb < 0.5 %}<span style="color:#dc2626;">{{ f.size_mb }} МБ ⚠</span>
+        {% else %}{{ f.size_mb }} МБ{% endif %}
+      </td>
+      <td>{{ '✅' if f.enabled else '—' }}</td>
+      <td>
+        <form method="post" action="{{ url_for('firmware_delete', model=f.model) }}"
+              onsubmit="return confirm('Удалить прошивку для {{ f.model }}? Телефоны этой модели перестанут получать обновление, пока не загрузите новую.')">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit" class="btn small danger">Удалить</button>
+        </form>
+      </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="5" style="color:#9ca3af;">Прошивок пока не загружено</td></tr>
+    {% endfor %}
+  </table>
+  <h3>Загрузить / обновить прошивку</h3>
+  <form method="post" enctype="multipart/form-data" style="display:flex; gap:8px; align-items:flex-end;">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="field" style="margin:0;">
+      <label>Модель</label>
+      <select name="model">{% for m in models %}<option value="{{ m }}">{{ m }}</option>{% endfor %}</select>
+    </div>
+    <div class="field" style="margin:0;">
+      <label>Файл прошивки</label>
+      <input type="file" name="file" required>
+    </div>
+    <button class="btn" type="submit">Загрузить</button>
+  </form>
+</div>
+{% endblock %}
