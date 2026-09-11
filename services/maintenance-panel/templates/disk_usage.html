@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Место на диске — Обслуживание{% endblock %}
+{% block content %}
+<h1>Место на диске</h1>
+
+{% if disk %}
+<div class="core-summary">
+    <div class="core-metric">
+        <div class="value">{{ disk.used_percent }}%</div>
+        <div class="label">занято на разделе</div>
+    </div>
+    <div class="core-metric">
+        <div class="value" style="font-size:18px;">{{ disk.free_human }}</div>
+        <div class="label">свободно</div>
+    </div>
+    <div class="core-metric">
+        <div class="value" style="font-size:18px;">{{ disk.total_human }}</div>
+        <div class="label">всего на разделе</div>
+    </div>
+</div>
+{% endif %}
+
+<div class="services-grid">
+    {% for s in stats %}
+    <div class="service-card">
+        <div class="name">{{ s.label }}</div>
+        {% if not s.exists %}
+        <div class="hint">Папка не найдена: {{ s.path }}</div>
+        {% else %}
+        <div style="font-size:24px;font-weight:700;color:var(--petrol);">{{ s.size_human }}</div>
+        <div class="hint">{{ s.file_count }} файлов{% if s.oldest_file %}, самый старый — {{ s.oldest_file }}{% endif %}</div>
+        <div class="hint" style="font-size:11px;color:#8A9A9C;">{{ s.path }}</div>
+        <form method="post" action="{{ url_for('disk_cleanup', dir_key=s.key) }}"
+              onsubmit="return confirm('Удалить все файлы в «' + {{ s.label|tojson }} + '» старше указанного числа дней? Это необратимо.')"
+              style="display:flex;gap:8px;align-items:center;margin-top:8px;">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <label style="font-size:12px;color:#667;">Удалить старше</label>
+            <input type="number" name="days" value="90" min="7" style="width:60px;padding:4px 6px;border:1px solid var(--petrol-tint-40);border-radius:6px;">
+            <span style="font-size:12px;color:#667;">дней</span>
+            <button type="submit" class="btn-sm btn-sm-danger">Очистить</button>
+        </form>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

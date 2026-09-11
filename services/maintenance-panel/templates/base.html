@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Обслуживание{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="topstrip">
+        <div class="logo-group">
+            <a href="/" class="logo-link">
+                <svg class="logo-mark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" role="img" aria-label="ATC Portal"><rect width="40" height="40" rx="9" fill="#5E4433"/><path d="M11 26c0-7 4-11 9-11s9 4 9 11" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="round"/><circle cx="20" cy="26" r="2.6" fill="#fff"/></svg>
+            <span class="logo-word">ATC Portal</span>
+            </a>
+            <span class="descriptor">ОБСЛУЖИВАНИЕ</span>
+        </div>
+        {% if g.remote_user %}
+        <nav class="topstrip-user">
+            <span class="topstrip-name">{{ g.remote_name }}</span>
+            <a href="/">← Портал</a>
+            <a href="/logout">Выход</a>
+            <div class="avatar">{{ g.remote_name[0]|upper }}</div>
+        </nav>
+        {% endif %}
+    </div>
+
+    <header class="topbar">
+        <nav class="topbar-tabs">
+            <a href="{{ url_for('dashboard') }}" class="{{ 'active' if request.endpoint == 'dashboard' }}">Статус</a>
+            <a href="{{ url_for('ami_console') }}" class="{{ 'active' if request.endpoint == 'ami_console' }}">AMI-консоль</a>
+            <a href="{{ url_for('ami_secrets_page') }}" class="{{ 'active' if request.endpoint == 'ami_secrets_page' }}">AMI-секреты</a>
+            <a href="{{ url_for('disk_usage_page') }}" class="{{ 'active' if request.endpoint == 'disk_usage_page' }}">Место на диске</a>
+            <a href="{{ url_for('logs') }}" class="{{ 'active' if request.endpoint == 'logs' }}">Логи</a>
+            <a href="{{ url_for('ha_status_page') }}" class="{{ 'active' if request.endpoint == 'ha_status_page' }}">HA-кластер</a>
+            <a href="{{ url_for('phone_firewall_page') }}" class="{{ 'active' if request.endpoint == 'phone_firewall_page' }}">Сеть телефонов</a>
+            <a href="{{ url_for('fail2ban_ignoreip_page') }}" class="{{ 'active' if request.endpoint == 'fail2ban_ignoreip_page' }}">fail2ban</a>
+            <a href="{{ url_for('backup_download') }}">Резервная копия</a>
+        </nav>
+    </header>
+
+    <main class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash flash-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="site-footer">
+        <span>© ATC Portal — Обслуживание · разработка: инженер электросвязи Мусин Р.И.</span>
+    </footer>
+</body>
+</html>

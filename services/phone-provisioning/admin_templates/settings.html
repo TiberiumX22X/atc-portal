@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card" style="max-width:560px; margin-bottom:20px; border: 2px solid {{ '#dc2626' if g.config_enabled != '1' or g.firmware_enabled != '1' else '#e5e7eb' }};">
+  <h2 style="margin-top:0;">Аварийные рубильники</h2>
+  <p style="color:#6b7280; font-size:13px; margin-top:-8px;">
+    Общие для всех моделей сразу. Выключите, если что-то пошло не так, или пока не готовы
+    пускать телефоны на новую систему целиком. Работает независимо от списка устройств —
+    выключено значит выключено для всех.
+  </p>
+  <form method="post">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="field">
+      <label>Раздача конфигов (cfg&lt;mac&gt;.xml)</label>
+      <label style="font-weight:normal; display:inline-block; margin-right:16px;">
+        <input type="radio" name="config_enabled" value="1" style="width:auto;" {{ 'checked' if g.config_enabled != '0' }}> Включена
+      </label>
+      <label style="font-weight:normal; display:inline-block;">
+        <input type="radio" name="config_enabled" value="0" style="width:auto;" {{ 'checked' if g.config_enabled == '0' }}> Выключена
+      </label>
+    </div>
+    <div class="field">
+      <label>Раздача прошивок</label>
+      <label style="font-weight:normal; display:inline-block; margin-right:16px;">
+        <input type="radio" name="firmware_enabled" value="1" style="width:auto;" {{ 'checked' if g.firmware_enabled != '0' }}> Включена
+      </label>
+      <label style="font-weight:normal; display:inline-block;">
+        <input type="radio" name="firmware_enabled" value="0" style="width:auto;" {{ 'checked' if g.firmware_enabled == '0' }}> Выключена
+      </label>
+    </div>
+    <button class="btn" type="submit">Сохранить</button>
+  </form>
+</div>
+
+<div class="tabs" style="max-width:560px; display:flex; gap:8px; margin-bottom:12px;">
+  {% for fam_key, fam_label in families.items() %}
+  <a href="{{ url_for('settings_page', family=fam_key) }}"
+     class="btn small {{ '' if fam_key == family else 'secondary' }}"
+     style="{{ 'background:#1e3a8a;' if fam_key == family }}">{{ fam_label }}</a>
+  {% endfor %}
+</div>
+
+<div class="card" style="max-width:560px;">
+  <h2 style="margin-top:0;">Настройки — {{ label }}</h2>
+  <form method="post">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="field"><label>SIP-сервер</label><input type="text" name="sip_server" value="{{ s.sip_server }}"></div>
+    <div class="field"><label>SIP-порт</label><input type="text" name="sip_port" value="{{ s.sip_port }}"></div>
+    <div class="field"><label>Сервер конфигурации (Config Server Path)</label><input type="text" name="config_server" value="{{ s.config_server }}"></div>
+    <div class="field"><label>Сервер прошивок</label><input type="text" name="firmware_server" value="{{ s.firmware_server }}"></div>
+    <div class="field"><label>NTP-сервер</label><input type="text" name="ntp_server" value="{{ s.ntp_server }}"></div>
+
+    <div class="field">
+      <label>Часовой пояс</label>
+      <select name="timezone" id="timezone-select" onchange="document.getElementById('timezone-custom').style.display = this.value === '__custom__' ? 'block' : 'none';">
+        <option value="auto" {{ 'selected' if s.timezone == 'auto' }}>Автоматически (auto)</option>
+        <option value="USZ1-2" {{ 'selected' if s.timezone == 'USZ1-2' }}>Калининград (UTC+2)</option>
+        <option value="MSK-3" {{ 'selected' if s.timezone == 'MSK-3' }}>Москва (UTC+3)</option>
+        <option value="SAM-4" {{ 'selected' if s.timezone == 'SAM-4' }}>Самара (UTC+4)</option>
+        <option value="EKB-5" {{ 'selected' if s.timezone == 'EKB-5' }}>Екатеринбург (UTC+5)</option>
+        <option value="OMSK-6" {{ 'selected' if s.timezone == 'OMSK-6' }}>Омск (UTC+6)</option>
+        <option value="KRAT-7" {{ 'selected' if s.timezone == 'KRAT-7' }}>Красноярск (UTC+7)</option>
+        <option value="IRKT-8" {{ 'selected' if s.timezone == 'IRKT-8' }}>Иркутск (UTC+8)</option>
+        <option value="YAKT-9" {{ 'selected' if s.timezone == 'YAKT-9' }}>Якутск (UTC+9)</option>
+        <option value="VLAT-10" {{ 'selected' if s.timezone == 'VLAT-10' }}>Владивосток (UTC+10)</option>
+        <option value="MAGT-11" {{ 'selected' if s.timezone == 'MAGT-11' }}>Магадан (UTC+11)</option>
+        <option value="PETT-12" {{ 'selected' if s.timezone == 'PETT-12' }}>Камчатка (UTC+12)</option>
+        <option value="__custom__" {{ 'selected' if s.timezone not in ['auto','USZ1-2','MSK-3','SAM-4','EKB-5','OMSK-6','KRAT-7','IRKT-8','YAKT-9','VLAT-10','MAGT-11','PETT-12'] }}>Другое (ввести вручную)</option>
+      </select>
+      <input type="text" name="timezone_custom" id="timezone-custom" value="{{ s.timezone }}"
+             placeholder="строка часового пояса телефона, например MSK-3"
+             style="margin-top:6px; display:{{ 'block' if s.timezone not in ['auto','USZ1-2','MSK-3','SAM-4','EKB-5','OMSK-6','KRAT-7','IRKT-8','YAKT-9','VLAT-10','MAGT-11','PETT-12'] else 'none' }};">
+      <p class="hint" style="margin-top:4px;">Список покрывает часовые пояса РФ (без перехода на летнее время, как принято в России с 2014 года). Если нужен другой — выберите «Другое» и впишите строку в формате телефона.</p>
+    </div>
+
+    <div class="field"><label>Язык</label><input type="text" name="language" value="{{ s.language }}"></div>
+    <div class="field"><label>Пароль администратора телефонов</label><input type="text" name="admin_password" value="{{ s.admin_password }}"></div>
+
+    <div class="field">
+      <label>Формат даты</label>
+      <select name="date_format">
+        <option value="0" {{ 'selected' if s.date_format == '0' }}>2026-08-26 (год-месяц-день)</option>
+        <option value="1" {{ 'selected' if s.date_format == '1' }}>08-26-2026 (месяц-день-год)</option>
+        <option value="2" {{ 'selected' if s.date_format == '2' }}>26-08-2026 (день-месяц-год)</option>
+        <option value="3" {{ 'selected' if s.date_format == '3' }}>среда, августа 26 (день недели, месяц день)</option>
+        <option value="4" {{ 'selected' if s.date_format == '4' }}>августа 26, среда (месяц день, день недели)</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label>Формат времени</label>
+      <select name="time_format">
+        <option value="0" {{ 'selected' if s.time_format == '0' }}>12-часовой (2:30 PM)</option>
+        <option value="1" {{ 'selected' if s.time_format == '1' }}>24-часовой (14:30)</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label>Разрешённый IP для Action URI (P32052)</label>
+      <input type="text" value="any" disabled style="background:#f3f4f6; color:#6b7280;">
+      <p class="hint" style="margin-top:4px;">Зафиксировано как «any» — не редактируется. Сужение до конкретного IP на
+        практике дважды приводило к отказу массовой перезагрузки: сервер шлёт команду со своего физического адреса
+        (то freepbx1, то freepbx2 при HA), а не с VIP, и телефон с более узким списком эти команды отклонял.</p>
+    </div>
+
+    <button class="btn" type="submit">Сохранить</button>
+  </form>
+</div>
+{% endblock %}

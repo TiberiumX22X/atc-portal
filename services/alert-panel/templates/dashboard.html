@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Главная{% endblock %}
+{% block content %}
+<div class="card">
+  <h2>Оповещения</h2>
+  <p class="muted">Активных номеров в списке целей: <b>{{ ext_count }}</b></p>
+  {% if recordings %}
+    <div class="grid">
+      {% for r in recordings %}
+        <form method="post" action="{{ url_for('trigger_alert', recording_id=r['id']) }}"
+              onsubmit="return confirm('Запустить оповещение «{{ r['alert_name'] }}» на {{ ext_count }} номеров?');">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit" class="btn-danger" style="width:100%;padding:16px 8px;">{{ r['alert_name'] }}</button>
+        </form>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="muted">Пока не добавлено ни одного типа оповещения — добавьте в разделе «Оповещения».</p>
+  {% endif %}
+  {% if ext_count == 0 %}
+    <p class="muted" style="margin-top:10px;">Список номеров пуст — синхронизируйте его в разделе «Номера».</p>
+  {% endif %}
+</div>
+<div class="card">
+  <h3>Последние запуски</h3>
+  {% if recent_logs %}
+  <table>
+    <tr><th>Время</th><th>Название</th><th>Кол-во</th><th>Кто</th></tr>
+    {% for row in recent_logs %}
+    <tr><td>{{ row['triggered_at'] }}</td><td>{{ row['name'] }}</td><td>{{ row['target_count'] }}</td><td>{{ row['triggered_by'] }}</td></tr>
+    {% endfor %}
+  </table>
+  {% else %}<p class="muted">Запусков пока не было.</p>{% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Дамп FreePBX из резервной копии — Обслуживание{% endblock %}
+{% block content %}
+<h1>Дамп FreePBX из резервной копии</h1>
+
+<div class="flash flash-error">
+    Дамп содержит конфигурацию FreePBX (номера, транки, маршруты) на момент снятия резервной
+    копии — БЕЗ истории звонков и записей. Применять только на текущем <b>master</b> (том сервере,
+    где сейчас VIP) — резервный узел получит изменения сам через обычную репликацию.
+    Применение дампа напрямую на backup при активной репликации может её разорвать.
+</div>
+
+<form method="post" enctype="multipart/form-data" class="ha-setup-form" style="max-width:480px;">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <label>Файл резервной копии (.tar.gz)</label>
+    <input type="file" name="backup_file" accept=".gz,.tar.gz" required>
+    <button type="submit" class="btn-primary" style="margin-top:14px;">Извлечь дамп</button>
+</form>
+
+<p class="hint" style="margin-top:16px;">Файл только извлекается на диск сервера — команда для
+    фактического применения выводится после извлечения, выполнить её нужно вручную.</p>
+{% endblock %}

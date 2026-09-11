@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block title %}HA-кластер — Обслуживание{% endblock %}
+{% block content %}
+<h1>HA-кластер</h1>
+
+{% if not status.configured %}
+<div class="flash flash-error">
+    HA-кластер на этом сервере не настроен.
+</div>
+<p><a href="{{ url_for('ha_setup_form') }}" class="btn-primary">Настроить HA-кластер</a></p>
+<p class="hint">Настройку нужно запустить отдельно на каждом из двух серверов, с разными параметрами
+    (на одном — роль master, на другом — backup).</p>
+{% else %}
+<p class="hint">Переключение ролей между узлами делает keepalived автоматически, вручную это не трогается.
+    Ниже — только просмотр текущего состояния.
+    <a href="{{ url_for('ha_setup_form') }}">Перенастроить этот узел</a> (например, при смене VIP или второго сервера).
+</p>
+<p class="hint">Если этот узел был недоступен (переустанавливался/выключался), пока второй работал —
+    перед повторным включением воспользуйтесь
+    <a href="{{ url_for('ha_failback_form') }}">безопасным возвратом в кластер</a>,
+    чтобы не потерять данные, накопленные вторым сервером за время простоя.
+</p>
+
+<div class="core-summary">
+    <div class="core-metric">
+        <div class="value" style="font-size:20px;">{{ status.config.ROLE|upper }}</div>
+        <div class="label">заданная роль этого узла</div>
+    </div>
+    <div class="core-metric">
+        <div class="value" style="font-size:16px;">{{ status.vrrp_state }}</div>
+        <div class="label">фактическое состояние VRRP сейчас</div>
+    </div>
+    <div class="core-metric">
+        <div class="value {{ 'ok-text' if status.keepalived_active else 'error-text' }}">
+            {{ 'работает' if status.keepalived_active else 'не активен' }}
+        </div>
+        <div class="label">служба keepalived</div>
+    </div>
+</div>
+
+<h2 style="font-size:16px;color:#556;margin-top:24px;">Параметры узла</h2>
+<table class="users-table">
+    <tbody>
+        <tr><td>Локальный IP</td><td>{{ status.config.LOCAL_IP }}</td></tr>
+        <tr><td>IP второго узла (peer)</td><td>{{ status.config.PEER_IP }}
+            {% if status.peer_reachable is not none %}
+                {% if status.peer_reachable %}<span class="badge badge-admin">доступен</span>
+                {% else %}<span class="badge badge-inactive">не отвечает на ping</span>{% endif %}
+            {% endif %}
+        </td></tr>
+        <tr><td>Виртуальный IP (VIP)</td><td>{{ status.config.VIP }}/{{ status.config.CIDR }}</td></tr>
+        <tr><td>Сетевой интерфейс</td><td>{{ status.config.IFACE }}</td></tr>
+    </tbody>
+</table>
+
+<h2 style="font-size:16px;color:#556;margin-top:24px;">Репликация MariaDB</h2>
+{% if not status.replication.applicable %}
+<p class="hint">Эта роль — master, реплика на нём не запускается (backup тянет данные с него, не наоборот) — это ожидаемое поведение, не ошибка.</p>
+{% elif status.replication.error %}
+<div class="flash flash-error">Не удалось проверить статус репликации: {{ status.replication.error }}</div>
+{% else %}
+<table class="users-table">
+    <tbody>
+        <tr><td>Slave IO поток</td><td>
+            {% if status.replication.io_running == 'Yes' %}<span class="badge badge-admin">Yes</span>
+            {% else %}<span class="badge badge-inactive">{{ status.replication.io_running }}</span>{% endif %}
+        </td></tr>
+        <tr><td>Slave SQL поток</td><td>
+            {% if status.replication.sql_running == 'Yes' %}<span class="badge badge-admin">Yes</span>
+            {% else %}<span class="badge badge-inactive">{{ status.replication.sql_running }}</span>{% endif %}
+        </td></tr>
+        <tr><td>Отставание от master</td><td>{{ status.replication.seconds_behind }} сек.</td></tr>
+    </tbody>
+</table>
+{% endif %}
+
+<h2 style="font-size:16px;color:#556;margin-top:24px;">Синхронизация панелей и конфигурации</h2>
+<p class="hint">Периодическая (раз в 3–5 минут по расписанию), не мгновенная — при аварийном переключении возможна потеря данных за последние несколько минут. Настраивается только на master.</p>
+{% if status.sync.panels_log %}
+<div class="console-box" style="max-height:150px;">{{ status.sync.panels_log }}</div>
+{% else %}
+<p class="hint">Лога синхронизации панелей нет на этом узле (нормально для backup — эта задача только на master).</p>
+{% endif %}
+
+<h2 style="font-size:16px;color:#556;margin-top:24px;">Последние события keepalived (переключения ролей)</h2>
+{% if status.notify_log %}
+<div class="console-box">{{ status.notify_log }}</div>
+{% else %}
+<p class="hint">Пока ни одного переключения роли не зафиксировано.</p>
+{% endif %}
+
+{% endif %}
+{% endblock %}

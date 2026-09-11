@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Номера — Монитор АТС{% endblock %}
+{% block content %}
+
+<form method="get" class="filters">
+    <div class="filters-row">
+        <div class="filter-field" style="flex: 2;">
+            <label>Поиск (номер, имя, IP, порт)</label>
+            <input type="text" name="q" value="{{ query }}" placeholder="например 7005, Иванов, 192.168...">
+        </div>
+        <div class="filter-field filter-submit">
+            <label>&nbsp;</label>
+            <button type="submit">Найти</button>
+            <a href="{{ url_for('numbers_page') }}" class="btn-secondary">Сбросить</a>
+        </div>
+    </div>
+</form>
+
+<div id="numbers-wrap">
+    {% include "_numbers_table.html" %}
+</div>
+
+<script>
+(function() {
+    const wrap = document.getElementById('numbers-wrap');
+    const params = new URLSearchParams(window.location.search);
+    const query = params.get('q') || '';
+    const page = params.get('page') || '1';
+    const sort = params.get('sort') || 'number';
+    const dir = params.get('dir') || 'asc';
+    const intervalMs = {{ poll_interval }} * 1000;
+
+    setInterval(function() {
+        fetch('partial/numbers?q=' + encodeURIComponent(query) + '&page=' + encodeURIComponent(page)
+            + '&sort=' + encodeURIComponent(sort) + '&dir=' + encodeURIComponent(dir))
+            .then(function(resp) { return resp.text(); })
+            .then(function(html) { wrap.innerHTML = html; })
+            .catch(function() { /* тихо пропускаем — следующая попытка через интервал */ });
+    }, intervalMs);
+})();
+</script>
+
+{% endblock %}

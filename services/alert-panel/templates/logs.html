@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Журнал{% endblock %}
+{% block content %}
+<div class="card">
+  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+    <h2 style="margin:0;">Журнал запусков (последние 200)</h2>
+    {% if g.remote_role == 'admin' %}
+    <form method="post" action="{{ url_for('logs_clear') }}" onsubmit="return confirm('Точно очистить весь журнал? Это необратимо.');">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit" class="btn-danger">Очистить журнал</button>
+    </form>
+    {% endif %}
+  </div>
+  <table>
+    <tr><th>Время</th><th>Название</th><th>Кол-во</th><th>Кто</th><th>Заметка</th></tr>
+    {% for row in rows %}
+    <tr>
+      <td>{{ row['triggered_at'] }}</td>
+      <td>{{ row['name'] }}</td>
+      <td>{{ row['target_count'] }}</td>
+      <td>{{ row['triggered_by'] }}</td>
+      <td class="muted">{{ row['note'] or '' }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+{% endblock %}

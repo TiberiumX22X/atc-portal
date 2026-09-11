@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}AMI-консоль — Обслуживание{% endblock %}
+{% block content %}
+<h1>AMI-консоль</h1>
+<p class="hint">Отправляет команду напрямую в Asterisk Manager Interface (эквивалент консоли <code>asterisk -rx</code>). Доступно только администратору.</p>
+
+<div class="quick-cmds">
+    {% for qc in quick_commands %}
+    <button type="button" onclick="document.getElementById('cmd').value={{ qc|tojson }}">{{ qc }}</button>
+    {% endfor %}
+</div>
+
+<form method="post" style="display:flex;gap:10px;margin-bottom:16px;">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <input type="text" name="command" id="cmd" value="{{ command }}" placeholder="Например: core show channels"
+           style="flex:1;padding:9px 12px;border:1px solid var(--petrol-tint-40);border-radius:6px;font-size:14px;font-family:monospace;">
+    <button type="submit" class="btn">Выполнить</button>
+</form>
+
+<div class="console-box">{% if result %}{{ result }}{% else %}<span class="console-empty">Введите команду и нажмите «Выполнить»</span>{% endif %}</div>
+{% endblock %}

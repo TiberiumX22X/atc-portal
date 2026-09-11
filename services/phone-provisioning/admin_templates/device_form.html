@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card" style="max-width:640px;">
+  <h2 style="margin-top:0;">{{ 'Изменить устройство' if device else 'Добавить устройство' }}</h2>
+  <form method="post">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="grid2">
+      <div class="field">
+        <label>MAC-адрес</label>
+        <input type="text" name="mac" class="mac" value="{{ device.mac if device else '' }}"
+               {{ 'readonly' if device else '' }} placeholder="c074ad1a0c40" required>
+      </div>
+      <div class="field">
+        <label>Вендор</label>
+        <select name="manufacturer" id="manufacturer-select">
+          {% for vendor_name in models_by_vendor.keys() %}
+          <option value="{{ vendor_name }}" {{ 'selected' if device and device.manufacturer == vendor_name else ('selected' if not device and vendor_name == 'Grandstream' else '') }}>{{ vendor_name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="field">
+        <label>Модель</label>
+        <select name="model" id="model-select" required></select>
+      </div>
+    </div>
+    {% if models_by_vendor.keys() | list | length > 1 %}
+    <p style="font-size:12px; color:#7A6F62; margin-top:-8px;">
+      Для Fanvil/Yealink поддерживается только Линия 1 (см. вкладку «Шаблоны» —
+      это lean-шаблоны без второго SIP-аккаунта); поле «Линия 2» ниже для них скрыто.
+    </p>
+    {% endif %}
+
+    <h3 style="margin-bottom:6px;">Линия 1</h3>
+    <div class="grid2">
+      <div class="field">
+        <label>Номер (extension)</label>
+        <input type="text" id="extension" name="extension" value="{{ device.extension or '' if device else '' }}">
+        <div id="lookup-status" style="font-size:12px; color:#6b7280; margin-top:4px;"></div>
+      </div>
+      <div class="field">
+        <label>Пароль SIP</label>
+        <input type="text" id="sip_password" name="sip_password" value="{{ device.sip_password or '' if device else '' }}">
+      </div>
+      <div class="field">
+        <label>Имя / подразделение</label>
+        <input type="text" id="name" name="name" value="{{ device.name or '' if device else '' }}">
+      </div>
+      <div class="field">
+        <label>Метка на экране телефона</label>
+        <input type="text" id="label" name="label" value="{{ device.label or '' if device else '' }}">
+      </div>
+    </div>
+    <div class="field">
+      <label><input type="checkbox" name="active" style="width:auto;" {{ 'checked' if not device or device.active else '' }}> Линия 1 активна</label>
+    </div>
+
+    <div id="line2-section">
+    <h3 style="margin-bottom:6px; margin-top:24px;">Линия 2 (опционально)</h3>
+    <div class="grid2">
+      <div class="field">
+        <label>Номер (extension)</label>
+        <input type="text" id="extension2" name="extension2" value="{{ device.extension2 or '' if device else '' }}">
+        <div id="lookup-status2" style="font-size:12px; color:#6b7280; margin-top:4px;"></div>
+      </div>
+      <div class="field">
+        <label>Пароль SIP</label>
+        <input type="text" id="sip_password2" name="sip_password2" value="{{ device.sip_password2 or '' if device else '' }}">
+      </div>
+      <div class="field">
+        <label>Имя / подразделение</label>
+        <input type="text" id="name2" name="name2" value="{{ device.name2 or '' if device else '' }}">
+      </div>
+      <div class="field">
+        <label>Метка на экране телефона</label>
+        <input type="text" id="label2" name="label2" value="{{ device.label2 or '' if device else '' }}">
+      </div>
+    </div>
+    <div class="field">
+      <label><input type="checkbox" name="active2" style="width:auto;" {{ 'checked' if device and device.active2 else '' }}> Линия 2 активна</label>
+    </div>
+    </div>
+
+    <div class="field" style="margin-top:20px;">
+      <label>Заметки</label>
+      <textarea name="notes" rows="2">{{ device.notes or '' if device else '' }}</textarea>
+    </div>
+    <button class="btn" type="submit">Сохранить</button>
+    <a class="btn secondary" href="{{ url_for('devices_list') }}">Отмена</a>
+  </form>
+</div>
+
+<script>
+  // Базовый URL для AJAX-подхвата данных из FreePBX — берём через url_for(),
+  // а не пишем путь вручную в JS: страница открывается на разной глубине
+  // (/admin/devices/new и /admin/devices/<id>/edit), и абсолютный или
+  // "наивный" относительный путь в этих случаях резолвился бы по-разному.
+  // url_for() уже учитывает префикс /provision/ портала автоматически.
+  const API_EXTENSION_LOOKUP_BASE = "{{ url_for('api_extension_lookup', extension='') }}";
+
+  // Автоподхват имени и пароля SIP из базы FreePBX по номеру добавочного.
+  // Общая функция для линии 1 и линии 2 — передаём суффикс полей.
+  function setupLookup(suffix) {
+    const extInput = document.getElementById('extension' + suffix);
+    const statusEl = document.getElementById('lookup-status' + suffix);
+    if (!extInput) return;
+
+    function lookupExtension() {
+      const ext = extInput.value.trim();
+      if (!ext) { statusEl.textContent = ''; return; }
+      statusEl.textContent = 'Ищу в базе FreePBX...';
+      fetch(API_EXTENSION_LOOKUP_BASE + encodeURIComponent(ext))
+        .then(r => r.json().then(data => ({ ok: r.ok, data })))
+        .then(({ ok, data }) => {
+          if (ok && data.found) {
+            const nameEl = document.getElementById('name' + suffix);
+            const labelEl = document.getElementById('label' + suffix);
+            const passEl = document.getElementById('sip_password' + suffix);
+            if (data.name) {
+              if (nameEl && !nameEl.value) nameEl.value = data.name;
+              if (labelEl && !labelEl.value) labelEl.value = data.name;
+            }
+            if (data.sip_password && passEl && !passEl.value) passEl.value = data.sip_password;
+            statusEl.textContent = '✅ Найден в FreePBX: ' + (data.name || ext);
+            statusEl.style.color = '#166534';
+          } else {
+            statusEl.textContent = '⚠ Номер не найден в базе FreePBX — заполните вручную';
+            statusEl.style.color = '#92400e';
+          }
+        })
+        .catch(() => {
+          statusEl.textContent = 'Не удалось связаться с БД FreePBX — заполните вручную';
+          statusEl.style.color = '#92400e';
+        });
+    }
+
+    extInput.addEventListener('blur', lookupExtension);
+    extInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') { e.preventDefault(); lookupExtension(); }
+    });
+  }
+
+  setupLookup('');
+  setupLookup('2');
+
+  // Вендор → модель (фильтруемый список) + скрытие "Линии 2" для вендоров,
+  // где lean-шаблоны поддерживают только один SIP-аккаунт (не Grandstream).
+  const MODELS_BY_VENDOR = {{ models_by_vendor | tojson }};
+  const CURRENT_MODEL = {{ (device.model if device else '') | tojson }};
+  const manufacturerSelect = document.getElementById('manufacturer-select');
+  const modelSelect = document.getElementById('model-select');
+  const line2Section = document.getElementById('line2-section');
+
+  function refreshModelOptions() {
+    const vendor = manufacturerSelect.value;
+    const models = MODELS_BY_VENDOR[vendor] || [];
+    modelSelect.innerHTML = '';
+    models.forEach(m => {
+      const opt = document.createElement('option');
+      opt.value = m;
+      opt.textContent = m;
+      if (m === CURRENT_MODEL) opt.selected = true;
+      modelSelect.appendChild(opt);
+    });
+    if (line2Section) {
+      line2Section.style.display = (vendor === 'Grandstream') ? '' : 'none';
+    }
+  }
+
+  manufacturerSelect.addEventListener('change', refreshModelOptions);
+  refreshModelOptions();
+</script>
+{% endblock %}

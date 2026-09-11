@@ -1,0 +1,12 @@
+{% if last_error %}
+<div class="flash flash-error">Ошибка опроса АТС: {{ last_error }}</div>
+{% endif %}
+
+<div class="calls-counter">
+    <div class="calls-number">{{ concurrent_calls }}</div>
+    <div class="calls-label">разговаривают сейчас</div>
+</div>
+
+{% if last_update %}
+<div class="results-summary dim">обновлено {{ last_update }}</div>
+{% endif %}

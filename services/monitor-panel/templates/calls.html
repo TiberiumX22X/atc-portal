@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Одновременные вызовы — Монитор АТС{% endblock %}
+{% block content %}
+
+<div id="calls-wrap">
+    {% include "_calls_content.html" %}
+</div>
+
+<script>
+(function() {
+    const wrap = document.getElementById('calls-wrap');
+    const intervalMs = {{ poll_interval }} * 1000;
+    setInterval(function() {
+        fetch('partial/calls')
+            .then(function(resp) { return resp.text(); })
+            .then(function(html) { wrap.innerHTML = html; })
+            .catch(function() {});
+    }, intervalMs);
+})();
+</script>
+
+{% endblock %}

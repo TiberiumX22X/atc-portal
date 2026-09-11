@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Первичная настройка{% endblock %}
+{% block content %}
+<div class="auth-box">
+    <h1>Создание администратора портала</h1>
+    <p class="hint">Учётной записи ещё нет — создайте единственного администратора. Остальных пользователей (в т.ч. перенесённых из старых панелей) можно будет добавить на странице «Пользователи».</p>
+    <form method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <label>Логин</label>
+        <input type="text" name="username" required autofocus>
+        <label>Пароль (минимум 6 символов)</label>
+        <input type="password" name="password" required minlength="6">
+        <button type="submit">Создать</button>
+    </form>
+</div>
+{% endblock %}

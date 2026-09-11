@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Вход — Портал АТС{% endblock %}
+{% block content %}
+<div class="auth-box">
+    <h1>Вход в портал</h1>
+    <p class="hint">Один логин для всех панелей: конференц-связь, провижининг, оповещение, CDR, монитор.</p>
+    <form method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <label>Логин</label>
+        <input type="text" name="username" required autofocus>
+        <label>Пароль</label>
+        <input type="password" name="password" required>
+        <button type="submit">Войти</button>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}fail2ban — исключения — Обслуживание{% endblock %}
+{% block content %}
+<h1>fail2ban — исключения (ignoreip)</h1>
+
+<p class="hint">
+    Отдельный механизм от «Сеть телефонов» выше — там Trusted-зона FreePBX Firewall, здесь —
+    собственный список исключений fail2ban. Jail <code>recidive</code> банит на неделю любой IP,
+    засветившийся в нескольких других jail'ах за сутки — если так забанит адрес другой вашей АТС
+    или шлюза (транк, межстанционная линия и т.п.), звонки через него перестанут ходить без всякой
+    видимой связи с настройками самого FreePBX/Asterisk: правила Trusted-зоны и Responsive Firewall
+    могут выглядеть полностью открытыми, а fail2ban режет пакет ещё раньше них, в цепочке INPUT.
+</p>
+<p class="hint">
+    Добавьте сюда адреса или подсети, которые не должны попадать под автоматическую блокировку
+    fail2ban ни при каких условиях (например IP смежной АТС, с которой у вас транк).
+</p>
+
+<form method="post" class="ha-setup-form" style="max-width:480px;margin-bottom:24px;">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <input type="hidden" name="action" value="add">
+    <label>Подсеть или адрес (CIDR)</label>
+    <input type="text" name="subnet" placeholder="например 192.168.7.0/24" required>
+    <button type="submit" class="btn-primary" style="margin-top:14px;">Добавить</button>
+</form>
+
+<h3>Текущие исключения</h3>
+{% if error %}
+<div class="flash flash-error">Не удалось получить список: {{ error }}</div>
+{% elif not entries %}
+<p class="hint">Список пуст (или файл /etc/fail2ban/jail.local ещё не создан).</p>
+{% else %}
+<table class="users-table">
+    <thead><tr><th>Подсеть / адрес</th><th></th></tr></thead>
+    <tbody>
+    {% for e in entries %}
+        <tr>
+            <td>{{ e }}</td>
+            <td>
+                <form method="post" style="display:inline;" onsubmit="return confirm('Убрать {{ e }} из исключений fail2ban?');">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                    <input type="hidden" name="action" value="remove">
+                    <input type="hidden" name="subnet" value="{{ e }}">
+                    <button type="submit" class="btn-danger">Убрать</button>
+                </form>
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+{% endblock %}

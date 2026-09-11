@@ -1,0 +1,218 @@
+[
+  {
+    "model_key": "V50P",
+    "display_name": "Fanvil V50P"
+  },
+  {
+    "model_key": "V60P",
+    "display_name": "Fanvil V60P"
+  },
+  {
+    "model_key": "V60W",
+    "display_name": "Fanvil V60W"
+  },
+  {
+    "model_key": "V61G",
+    "display_name": "Fanvil V61G"
+  },
+  {
+    "model_key": "V61W",
+    "display_name": "Fanvil V61W"
+  },
+  {
+    "model_key": "V62",
+    "display_name": "Fanvil V62"
+  },
+  {
+    "model_key": "V62G",
+    "display_name": "Fanvil V62G"
+  },
+  {
+    "model_key": "V62Pro",
+    "display_name": "Fanvil V62Pro"
+  },
+  {
+    "model_key": "V62W",
+    "display_name": "Fanvil V62W"
+  },
+  {
+    "model_key": "V63",
+    "display_name": "Fanvil V63"
+  },
+  {
+    "model_key": "V64",
+    "display_name": "Fanvil V64"
+  },
+  {
+    "model_key": "V65",
+    "display_name": "Fanvil V65"
+  },
+  {
+    "model_key": "V66",
+    "display_name": "Fanvil V66"
+  },
+  {
+    "model_key": "V66Pro",
+    "display_name": "Fanvil V66Pro"
+  },
+  {
+    "model_key": "W610W",
+    "display_name": "Fanvil W610W"
+  },
+  {
+    "model_key": "W611W",
+    "display_name": "Fanvil W611W"
+  },
+  {
+    "model_key": "W620W",
+    "display_name": "Fanvil W620W"
+  },
+  {
+    "model_key": "X1S",
+    "display_name": "Fanvil X1S"
+  },
+  {
+    "model_key": "X1SG",
+    "display_name": "Fanvil X1SG"
+  },
+  {
+    "model_key": "X2",
+    "display_name": "Fanvil X2"
+  },
+  {
+    "model_key": "X210",
+    "display_name": "Fanvil X210"
+  },
+  {
+    "model_key": "X210-V2",
+    "display_name": "Fanvil X210-V2"
+  },
+  {
+    "model_key": "X210i-V2",
+    "display_name": "Fanvil X210i-V2"
+  },
+  {
+    "model_key": "X2C",
+    "display_name": "Fanvil X2C"
+  },
+  {
+    "model_key": "X301",
+    "display_name": "Fanvil X301/X301P"
+  },
+  {
+    "model_key": "X301G",
+    "display_name": "Fanvil X301G"
+  },
+  {
+    "model_key": "X301W",
+    "display_name": "Fanvil X301W"
+  },
+  {
+    "model_key": "X303",
+    "display_name": "Fanvil X303/X303P"
+  },
+  {
+    "model_key": "X303G",
+    "display_name": "Fanvil X303G"
+  },
+  {
+    "model_key": "X303W",
+    "display_name": "Fanvil X303W"
+  },
+  {
+    "model_key": "X305",
+    "display_name": "Fanvil X305"
+  },
+  {
+    "model_key": "X3S",
+    "display_name": "Fanvil X3S"
+  },
+  {
+    "model_key": "X3SG",
+    "display_name": "Fanvil X3SG"
+  },
+  {
+    "model_key": "X3SG_Lite",
+    "display_name": "Fanvil X3SG Lite"
+  },
+  {
+    "model_key": "X3SG_Pro",
+    "display_name": "Fanvil X3SG Pro"
+  },
+  {
+    "model_key": "X3SP_Lite",
+    "display_name": "Fanvil X3S(P) Lite"
+  },
+  {
+    "model_key": "X3SP_Pro",
+    "display_name": "Fanvil X3S(P) Pro"
+  },
+  {
+    "model_key": "X3U",
+    "display_name": "Fanvil X3U"
+  },
+  {
+    "model_key": "X3U_Pro",
+    "display_name": "Fanvil X3U Pro"
+  },
+  {
+    "model_key": "X4",
+    "display_name": "Fanvil X4"
+  },
+  {
+    "model_key": "X4U",
+    "display_name": "Fanvil X4U"
+  },
+  {
+    "model_key": "X4U-V2",
+    "display_name": "Fanvil X4U-V2"
+  },
+  {
+    "model_key": "X5S",
+    "display_name": "Fanvil X5S"
+  },
+  {
+    "model_key": "X5U",
+    "display_name": "Fanvil X5U"
+  },
+  {
+    "model_key": "X5U-V2",
+    "display_name": "Fanvil X5U-V2"
+  },
+  {
+    "model_key": "X6",
+    "display_name": "Fanvil X6"
+  },
+  {
+    "model_key": "X6U",
+    "display_name": "Fanvil X6U"
+  },
+  {
+    "model_key": "X6U-V2",
+    "display_name": "Fanvil X6U-V2"
+  },
+  {
+    "model_key": "X7",
+    "display_name": "Fanvil X7"
+  },
+  {
+    "model_key": "X7-V2",
+    "display_name": "Fanvil X7-V2"
+  },
+  {
+    "model_key": "X7A",
+    "display_name": "Fanvil X7A"
+  },
+  {
+    "model_key": "X7C",
+    "display_name": "Fanvil X7C"
+  },
+  {
+    "model_key": "X7C-V2",
+    "display_name": "Fanvil X7C-V2"
+  },
+  {
+    "model_key": "i56A",
+    "display_name": "Fanvil i56A"
+  }
+]

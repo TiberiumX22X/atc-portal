@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Логи — Обслуживание{% endblock %}
+{% block content %}
+<h1>Логи сервисов</h1>
+
+<form method="get" class="filters" style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;">
+    <div class="filter-field">
+        <label>Сервис</label>
+        <select name="unit" class="log-select" onchange="this.form.submit()">
+            {% for unit_id, label in units.items() %}
+            <option value="{{ unit_id }}" {{ 'selected' if unit_id == selected_unit }}>{{ label }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="filter-field">
+        <label>Строк</label>
+        <select name="lines" class="log-select" onchange="this.form.submit()">
+            {% for n in [50, 100, 200, 500] %}
+            <option value="{{ n }}" {{ 'selected' if n|string == lines|string }}>{{ n }}</option>
+            {% endfor %}
+        </select>
+    </div>
+</form>
+
+<div class="console-box">{% if log_text %}{{ log_text }}{% else %}<span class="console-empty">Лог пуст</span>{% endif %}</div>
+{% endblock %}

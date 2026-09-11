@@ -1,0 +1,138 @@
+[
+  {
+    "model_key": "SIP-T19_E2",
+    "display_name": "Yealink T19 E2"
+  },
+  {
+    "model_key": "SIP-T19P_E2",
+    "display_name": "Yealink T19P E2"
+  },
+  {
+    "model_key": "SIP-T21_E2",
+    "display_name": "Yealink T21 E2"
+  },
+  {
+    "model_key": "SIP-T21P_E2",
+    "display_name": "Yealink T21P E2"
+  },
+  {
+    "model_key": "SIP-T23G",
+    "display_name": "Yealink T23G"
+  },
+  {
+    "model_key": "SIP-T23P",
+    "display_name": "Yealink T23P"
+  },
+  {
+    "model_key": "SIP-T27G",
+    "display_name": "Yealink T27G"
+  },
+  {
+    "model_key": "SIP-T30P",
+    "display_name": "Yealink T30P"
+  },
+  {
+    "model_key": "SIP-T31G",
+    "display_name": "Yealink T31G"
+  },
+  {
+    "model_key": "SIP-T31P",
+    "display_name": "Yealink T31P"
+  },
+  {
+    "model_key": "SIP-T31W",
+    "display_name": "Yealink T31W"
+  },
+  {
+    "model_key": "SIP-T33G",
+    "display_name": "Yealink T33G"
+  },
+  {
+    "model_key": "SIP-T33P",
+    "display_name": "Yealink T33P"
+  },
+  {
+    "model_key": "SIP-T34W",
+    "display_name": "Yealink T34W"
+  },
+  {
+    "model_key": "SIP-T40G",
+    "display_name": "Yealink T40G"
+  },
+  {
+    "model_key": "SIP-T40P",
+    "display_name": "Yealink T40P"
+  },
+  {
+    "model_key": "SIP-T41S",
+    "display_name": "Yealink T41S"
+  },
+  {
+    "model_key": "SIP-T41U",
+    "display_name": "Yealink T41U"
+  },
+  {
+    "model_key": "SIP-T42S",
+    "display_name": "Yealink T42S"
+  },
+  {
+    "model_key": "SIP-T42U",
+    "display_name": "Yealink T42U"
+  },
+  {
+    "model_key": "SIP-T43U",
+    "display_name": "Yealink T43U"
+  },
+  {
+    "model_key": "SIP-T44U",
+    "display_name": "Yealink T44U"
+  },
+  {
+    "model_key": "SIP-T44W",
+    "display_name": "Yealink T44W"
+  },
+  {
+    "model_key": "SIP-T46S",
+    "display_name": "Yealink T46S"
+  },
+  {
+    "model_key": "SIP-T46U",
+    "display_name": "Yealink T46U"
+  },
+  {
+    "model_key": "SIP-T48S",
+    "display_name": "Yealink T48S"
+  },
+  {
+    "model_key": "SIP-T48U",
+    "display_name": "Yealink T48U"
+  },
+  {
+    "model_key": "SIP-T52S",
+    "display_name": "Yealink T52S"
+  },
+  {
+    "model_key": "SIP-T53",
+    "display_name": "Yealink T53"
+  },
+  {
+    "model_key": "SIP-T53C",
+    "display_name": "Yealink T53C"
+  },
+  {
+    "model_key": "SIP-T53W",
+    "display_name": "Yealink T53W"
+  },
+  {
+    "model_key": "SIP-T54S",
+    "display_name": "Yealink T54S"
+  },
+  {
+    "model_key": "SIP-T54W",
+    "display_name": "Yealink T54W"
+  },
+  {
+    "model_key": "SIP-T57W",
+    "display_name": "Yealink T57W"
+  }
+]

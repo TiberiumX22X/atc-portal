@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+  .editor-grid { display: grid; grid-template-columns: 1fr 320px; gap: 20px; align-items: start; }
+  textarea.tpl-editor {
+    width: 100%; min-height: 480px; font-family: "SF Mono", Consolas, monospace; font-size: 13px;
+    line-height: 1.5; white-space: pre; resize: vertical;
+  }
+  .var-list { font-size: 12px; }
+  .var-list code { background: var(--petrol-tint-20); padding: 1px 5px; border-radius: 4px; }
+  .var-group { margin-bottom: 14px; }
+  .var-group h4 { margin: 0 0 6px; font-size: 12px; color: var(--petrol-dark); text-transform: uppercase; letter-spacing: .04em; }
+  .preview-box { margin-top: 16px; font-size: 12px; }
+  .preview-ok { background: #EAF0E2; color: #3F5A34; padding: 10px; border-radius: 6px; white-space: pre-wrap; font-family: monospace; max-height: 240px; overflow: auto; }
+  .preview-error { background: #F3E2DC; color: #8C3A2E; padding: 10px; border-radius: 6px; }
+  .actions-row { display: flex; gap: 10px; margin-top: 12px; align-items: center; }
+</style>
+
+<h1>Шаблон: {{ vendor.name }}</h1>
+<p style="color:#7A6F62; font-size:13px; margin-top:-8px;">
+  Формат: <code>{{ vendor.template_format }}</code> ·
+  {{ 'штатный шаблон проекта' if vendor.source == 'built_in' else 'изменённый пользователем' }}
+</p>
+
+<div class="editor-grid">
+  <div>
+    <form method="post">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <textarea name="template_content" class="tpl-editor" spellcheck="false">{{ vendor.template_content }}</textarea>
+
+      <div class="actions-row">
+        <button type="submit" name="action" value="save" class="btn">Проверить и сохранить</button>
+        {% if vendor.original_content %}
+        <button type="submit" name="action" value="restore" class="btn secondary"
+                onclick="return confirm('Заменить текущий шаблон на оригинальный (из проекта)? Текущие правки будут потеряны.')">
+          Восстановить оригинал
+        </button>
+        {% endif %}
+      </div>
+    </form>
+
+    {% if preview_error %}
+    <div class="preview-box">
+      <div class="preview-error"><strong>Ошибка рендера — не сохранено:</strong><br>{{ preview_error }}</div>
+    </div>
+    {% elif preview_result %}
+    <div class="preview-box">
+      <div style="margin-bottom:6px; color:#3F5A34; font-weight:600;">Тестовый рендер на фиктивных данных — ок:</div>
+      <div class="preview-ok">{{ preview_result }}</div>
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="card var-list">
+    <div class="var-group">
+      <h4>Устройство</h4>
+      <code>{{ '{{' }} device.extension {{ '}}' }}</code><br>
+      <code>{{ '{{' }} device.label {{ '}}' }}</code><br>
+      <code>{{ '{{' }} device.sip_password {{ '}}' }}</code><br>
+      <code>{{ '{{' }} device.active {{ '}}' }}</code>
+    </div>
+    <div class="var-group">
+      <h4>Настройки вендора</h4>
+      <code>{{ '{{' }} s.sip_server {{ '}}' }}</code><br>
+      <code>{{ '{{' }} s.sip_port {{ '}}' }}</code><br>
+      <code>{{ '{{' }} s.ntp_server {{ '}}' }}</code><br>
+      <code>{{ '{{' }} s.timezone {{ '}}' }}</code><br>
+      <code>{{ '{{' }} s.language {{ '}}' }}</code><br>
+      <code>{{ '{{' }} s.admin_password {{ '}}' }}</code>
+    </div>
+    <div class="var-group">
+      <h4>Прочее</h4>
+      <code>{{ '{{' }} mac {{ '}}' }}</code> — MAC без разделителей<br>
+      <code>{{ '{{' }} model {{ '}}' }}</code> — для ветвления между
+      моделями одного вендора: <code>{% raw %}{% if model == 'X4U' %}...{% endif %}{% endraw %}</code>
+    </div>
+    <div class="var-group">
+      <h4>Настройки вендора редактируются</h4>
+      в БД (<code>phone_vendor_settings</code>) — отдельного UI под них
+      пока нет, править напрямую через sqlite3 на сервере при необходимости.
+    </div>
+  </div>
+</div>
+
+{% endblock %}

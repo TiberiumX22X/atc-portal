@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card" style="max-width:560px;">
+  <h2 style="margin-top:0;">Импорт устройств</h2>
+  <p style="color:#4b5563; font-size:14px;">
+    Основной файл — выгрузка из Yeastar (<code>Yeastar_device_inventory.xlsx</code>): MAC, номер(а), имя, модель.
+    Если на MAC настроено 2 линии — номера/имена там записаны через запятую, сервис сам разложит их на линию 1 / линию 2.
+  </p>
+  <p style="color:#4b5563; font-size:14px;">
+    Второй файл (опционально, но рекомендуется) — выгрузка из FreePBX
+    (<code>extension,name,tech,secret</code>): реальные имя и пароль SIP по каждому номеру,
+    возьмутся оттуда вместо неполных данных Yeastar.
+  </p>
+  <p style="color:#4b5563; font-size:14px;">
+    Устройства сопоставляются по MAC: новые — добавляются, уже существующие — обновляются (данные освежатся,
+    вручную выставленные «Активна»/заметки/BLF-клавиши не трогаются).
+  </p>
+  <form method="post" enctype="multipart/form-data">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="field">
+      <label>Файл Yeastar (.xlsx)</label>
+      <input type="file" name="file" accept=".xlsx" required>
+    </div>
+    <div class="field">
+      <label>Файл FreePBX (.csv) — необязательно</label>
+      <input type="file" name="freepbx_csv" accept=".csv">
+    </div>
+    <button class="btn" type="submit">Импортировать</button>
+    <a class="btn secondary" href="{{ url_for('devices_list') }}">Отмена</a>
+  </form>
+</div>
+{% endblock %}

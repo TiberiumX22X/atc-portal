@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Номера{% endblock %}
+{% block content %}
+<div class="card">
+  <h2>Синхронизация с FreePBX</h2>
+  <p class="muted">
+    Тянет список номеров и имён напрямую из БД FreePBX (раздел Applications → Extensions).
+    Берутся только номера с заполненным именем, отличным от самого номера. Новые номера
+    добавляются, существующие обновляются, пропавшие из выборки — отключаются.
+  </p>
+  <form method="post" onsubmit="return confirm('Синхронизировать список номеров с FreePBX?');">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="action" value="sync">
+    <button type="submit" style="width:100%;">Синхронизировать из FreePBX</button>
+  </form>
+</div>
+
+<div class="card">
+  <h2>Список номеров ({{ extensions|length }})</h2>
+  <form method="post" onsubmit="return confirm('Точно очистить весь список?');" style="margin-bottom:10px;">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="action" value="delete_all">
+    <button type="submit">Очистить весь список</button>
+  </form>
+  <table>
+    <tr><th>Номер</th><th>Имя</th><th>Активен</th><th></th></tr>
+    {% for e in extensions %}
+    <tr>
+      <td>{{ e['extension'] }}</td>
+      <td>{{ e['label'] or '—' }}</td>
+      <td>{{ 'Да' if e['active'] else 'Нет' }}</td>
+      <td>
+        <form method="post" style="display:inline;">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <input type="hidden" name="action" value="toggle">
+          <input type="hidden" name="ext_id" value="{{ e['id'] }}">
+          <button type="submit">{{ 'Отключить' if e['active'] else 'Включить' }}</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+<div class="card">
+  <h2>Ручной импорт (резервный способ)</h2>
+  <p class="muted">На случай, если синхронизация с FreePBX недоступна. По одному номеру на строку.</p>
+  <form method="post">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="action" value="import">
+    <textarea name="extensions_raw" rows="6" placeholder="7000&#10;7001&#10;7002"></textarea>
+    <button type="submit">Импортировать</button>
+  </form>
+</div>
+{% endblock %}

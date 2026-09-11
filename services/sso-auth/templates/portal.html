@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}Портал АТС{% endblock %}
+
+{% block header_extra %}
+{% if alerts %}
+<div class="alerts-bell" id="alertsBell">
+    <button type="button" class="alerts-bell-btn" onclick="document.getElementById('alertsDropdown').classList.toggle('open')">
+        🔔 <span class="alerts-badge">{{ alerts|length }}</span>
+    </button>
+    <div class="alerts-dropdown" id="alertsDropdown">
+        <div class="alerts-dropdown-title">
+            Активные уведомления ({{ alerts|length }})
+            <form method="post" action="{{ url_for('dismiss_all_alerts') }}" style="display:inline;"
+                  onsubmit="return confirm('Скрыть все текущие уведомления? Если проблема ещё не устранена, она появится снова при следующей проверке.');">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                <button type="submit" class="alerts-clear-all-btn">Очистить все</button>
+            </form>
+        </div>
+        {% for a in alerts %}
+        <div class="alert-item alert-item-{{ a.severity }}">
+            <div class="alert-item-message">{{ a.message }}</div>
+            <div class="alert-item-meta-row">
+                <div class="alert-item-meta">{{ a.node }} · {{ a.source }} · с {{ a.first_seen }}</div>
+                <form method="post" action="{{ url_for('dismiss_alert') }}" style="display:inline;">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                    <input type="hidden" name="alert_key" value="{{ a.alert_key }}">
+                    <input type="hidden" name="node" value="{{ a.node }}">
+                    <button type="submit" class="alert-item-dismiss" title="Скрыть (вернётся, если проблема ещё есть)">✕</button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<h1>Панели</h1>
+<div class="panel-grid">
+    {% set allowed = session.get('allowed_panels', '*') %}
+    {% for p in panels %}
+    {% set is_admin = session.get('role') == 'admin' %}
+    {% set operator_has_access = not p.get('admin_only') and (allowed == '*' or p.key in allowed.split(',')) %}
+    {% if is_admin or operator_has_access %}
+    <a class="panel-card" href="{{ p.path }}">
+        <span class="icon">{{ p.icon }}</span>
+        <span class="name">{{ p.name }}</span>
+    </a>
+    {% endif %}
+    {% endfor %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+{% if alerts %}
+<script>
+document.addEventListener("click", function (e) {
+    var bell = document.getElementById("alertsBell");
+    var dropdown = document.getElementById("alertsDropdown");
+    if (bell && dropdown && !bell.contains(e.target)) {
+        dropdown.classList.remove("open");
+    }
+});
+</script>
+{% endif %}
+{% endblock %}

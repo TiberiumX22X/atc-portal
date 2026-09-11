@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+  .status-badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+  .status-verified { background: #EAF0E2; color: #3F5A34; }
+  .status-unverified { background: #EDE7DC; color: var(--petrol-dark); }
+  .status-broken { background: #F3E2DC; color: #8C3A2E; }
+  .vendor-card { margin-bottom: 24px; }
+  .vendor-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .source-tag { font-size: 11px; color: #7A6F62; }
+  .status-form { display: inline-flex; gap: 6px; align-items: center; }
+  .status-form select { width: auto; padding: 4px 6px; font-size: 12px; }
+  .issue-link { font-size: 12px; }
+</style>
+
+<h1 style="margin-bottom:4px;">Шаблоны провижининга</h1>
+<p style="color:#7A6F62; margin-top:0; font-size:14px;">
+  Grandstream (GXP/GRP) сюда не входит — эти 3 модели проверены на реальном
+  железе и редактируются только через файлы проекта. Остальные модели ниже
+  собраны из открытых шаблонов 3CX и пока не проверены на реальных телефонах —
+  см. раздел «Обратная связь» в README.
+</p>
+
+{% for vendor in vendors %}
+<div class="card vendor-card">
+  <div class="vendor-head">
+    <h2 style="margin:0;">
+      {{ vendor.name }}
+      <span class="source-tag">({{ 'изменённый шаблон' if vendor.source == 'custom' else 'штатный шаблон' }})</span>
+    </h2>
+    <a class="btn small" href="{{ url_for('template_edit', vendor_id=vendor.id) }}">Редактировать шаблон</a>
+  </div>
+
+  <table>
+    <tr><th>Модель</th><th>Статус</th><th style="width:320px;">Изменить статус</th><th></th></tr>
+    {% for m in models_by_vendor[vendor.id] %}
+    <tr>
+      <td>{{ m.display_name }}</td>
+      <td>
+        <span class="status-badge status-{{ m.status }}">{{ status_labels[m.status] }}</span>
+        {% if m.status_note %}<div style="font-size:11px; color:#7A6F62; margin-top:2px;">{{ m.status_note }}</div>{% endif %}
+      </td>
+      <td>
+        <form class="status-form" method="post" action="{{ url_for('model_status_update', vendor_id=vendor.id, model_id=m.id) }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <select name="status">
+            {% for key, label in status_labels.items() %}
+            <option value="{{ key }}" {{ 'selected' if m.status == key else '' }}>{{ label }}</option>
+            {% endfor %}
+          </select>
+          <input type="text" name="status_note" placeholder="ссылка на issue / комментарий" value="{{ m.status_note or '' }}" style="width:160px;">
+          <button type="submit" class="btn small">OK</button>
+        </form>
+      </td>
+      <td>
+        {% if m.status != 'verified' %}
+        <a class="issue-link" href="{{ issue_urls[m.id] }}" target="_blank" rel="noopener">Сообщить на GitHub →</a>
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+{% endfor %}
+
+{% endblock %}

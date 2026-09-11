@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Сеть телефонов — Обслуживание{% endblock %}
+{% block content %}
+<h1>Сеть телефонов (Firewall)</h1>
+
+<p class="hint">
+    Порт провижининга (8090) не входит ни в один штатный сервис Firewall FreePBX и по умолчанию
+    заблокирован для устройств вне доверенной зоны — телефоны из обычной LAN не смогут скачать
+    конфигурацию, пока их подсеть здесь не добавлена. Добавьте подсеть, где физически находятся
+    телефоны (например 192.168.0.0/24).
+</p>
+
+<form method="post" class="ha-setup-form" style="max-width:480px;margin-bottom:24px;">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <input type="hidden" name="action" value="add">
+    <label>Подсеть или адрес (CIDR)</label>
+    <input type="text" name="subnet" placeholder="например 192.168.0.0/24" required>
+    <button type="submit" class="btn-primary" style="margin-top:14px;">Добавить</button>
+</form>
+
+<h3>Текущие доверенные сети</h3>
+{% if error %}
+<div class="flash flash-error">Не удалось получить список: {{ error }}</div>
+{% elif not entries %}
+<p class="hint">Список пуст.</p>
+{% else %}
+<table class="users-table">
+    <thead><tr><th>Подсеть / адрес</th><th></th></tr></thead>
+    <tbody>
+    {% for e in entries %}
+        <tr>
+            <td>{{ e }}</td>
+            <td>
+                <form method="post" style="display:inline;" onsubmit="return confirm('Убрать {{ e }} из доверенной зоны?');">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                    <input type="hidden" name="action" value="remove">
+                    <input type="hidden" name="subnet" value="{{ e }}">
+                    <button type="submit" class="btn-danger">Убрать</button>
+                </form>
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+{% endblock %}

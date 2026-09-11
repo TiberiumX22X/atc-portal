@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="tabs" style="max-width:560px; display:flex; gap:8px; margin-bottom:12px;">
+  {% for fam_key, fam_label in families.items() %}
+  <a href="{{ url_for('color_settings_page', family=fam_key) }}"
+     class="btn small {{ '' if fam_key == family else 'secondary' }}"
+     style="{{ 'background:#1e3a8a;' if fam_key == family }}">{{ fam_label }}</a>
+  {% endfor %}
+</div>
+
+<div class="card" style="max-width:560px;">
+  <h2 style="margin-top:0;">Характеристики — {{ label }}</h2>
+  <p style="color:#6b7280; font-size:13px; margin-top:-8px;">
+    У простых 1610/1620 нет ни Bluetooth, ни цветного экрана — своей вкладки для них тут нет.
+  </p>
+  <form method="post">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="field">
+      <label><input type="checkbox" name="color_bluetooth_enabled" value="1" style="width:auto;"
+        {{ 'checked' if s.color_bluetooth_enabled == '1' }}> Bluetooth включён</label>
+    </div>
+    {% if has_wifi %}
+    <div class="field">
+      <label><input type="checkbox" name="color_wifi_enabled" value="1" style="width:auto;"
+        {{ 'checked' if s.color_wifi_enabled == '1' }}> Wi-Fi включён</label>
+    </div>
+    {% endif %}
+    <div class="field">
+      <label><input type="checkbox" name="color_screensaver_enabled" value="1" style="width:auto;"
+        {{ 'checked' if s.color_screensaver_enabled == '1' }}> Заставка включена</label>
+    </div>
+    <div class="field">
+      <label>Яркость экрана (%)</label>
+      <input type="text" name="color_brightness" value="{{ s.color_brightness }}">
+    </div>
+    <button class="btn" type="submit">Сохранить</button>
+  </form>
+</div>
+
+<div class="card" style="max-width:560px; margin-top:20px; background:#f0fdf4; border-color:#bbf7d0;">
+  <h3 style="margin-top:0;">Статус применения</h3>
+  <p style="font-size:14px; margin-bottom:0;">
+    {% if family == 'grp' %}
+    Bluetooth, заставка, яркость и Wi-Fi подключены и подтверждены реальными item/part
+    конфигами с живых телефонов (GRP2613 и GRP2636).
+    {% else %}
+    Bluetooth, заставка, яркость подключены и подтверждены изолированными диффами
+    до/после на живом телефоне. Wi-Fi у этой модели нет физически.
+    {% endif %}
+  </p>
+</div>
+{% endblock %}

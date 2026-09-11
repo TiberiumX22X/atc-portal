@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Документация
+    url: https://github.com/TiberiumX22X/atc-portal#readme
+    about: Сначала загляните в README — там описана установка, структура панелей и известные особенности.

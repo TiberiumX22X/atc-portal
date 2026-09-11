@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% block title %}Настройка HA-кластера — Обслуживание{% endblock %}
+{% block content %}
+<h1>Настройка HA-кластера</h1>
+
+<div class="flash flash-error">
+    Запускать ЭТУ форму отдельно на КАЖДОМ из двух серверов, с разными параметрами
+    (на одном — роль «master», на другом — «backup», VIP одинаковый на обоих).
+    На сервере с ролью master в процессе настройки снимается дамп базы данных и
+    передаётся по SSH на второй сервер — это может занять несколько минут.
+</div>
+
+<div class="flash flash-error">
+    Перед запуском на <b>каждом</b> из двух серверов должен быть настроен SSH-доступ
+    по ключу к другому серверу — либо вручную заранее (см. ниже), либо автоматически
+    прямо в этой форме, если заполнить поля «Автоматическая настройка доступа к соседу».
+</div>
+
+<div class="flash flash-error">
+    Вариант вручную — это <b>две отдельные команды</b>, выполнять по очереди, не одной строкой:
+    <pre class="console-box" style="margin-top:8px;">ssh-keygen -t rsa -b 4096 -N "" -f ~/.ssh/id_rsa</pre>
+    Дождаться завершения (если ключ уже был создан раньше — эту команду можно пропустить),
+    затем отдельно:
+    <pre class="console-box" style="margin-top:8px;">ssh-copy-id root@&lt;IP второго сервера&gt;</pre>
+    Выполнить на обоих серверах, указывая в каждом IP <b>другого</b> сервера.
+</div>
+
+<div class="flash flash-error">
+    Firewall FreePBX по умолчанию блокирует подключение с соседнего сервера,
+    в том числе SSH — а это правило теряется при переустановке ОС/FreePBX
+    (в отличие от кода панелей, который тянется из git). Настройка сама
+    открывает себя навстречу соседу при запуске, но для самого первого
+    SSH-подключения (шаг выше) нужна взаимность — если оба сервера только что
+    переустановлены, выполните заранее на <b>каждом</b>:
+    <pre class="console-box" style="margin-top:8px;">fwconsole firewall add trusted &lt;IP второго сервера&gt;/32
+fwconsole firewall restart</pre>
+</div>
+
+<form method="post" class="ha-setup-form" style="max-width:520px;">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+    <label>Роль этого сервера</label>
+    <select name="role" required>
+        <option value="master">master (основной)</option>
+        <option value="backup">backup (резервный)</option>
+    </select>
+
+    <label style="margin-top:14px;">Локальный IP этого сервера</label>
+    <select name="local_ip" required>
+        {% for i in interfaces %}
+        <option value="{{ i.ip }}" data-cidr="{{ i.cidr }}" data-iface="{{ i.iface }}">
+            {{ i.ip }}/{{ i.cidr }} ({{ i.iface }})
+        </option>
+        {% endfor %}
+    </select>
+    <p class="hint">Определено автоматически по интерфейсам этого сервера — выберите нужный, если их несколько.</p>
+
+    <label style="margin-top:14px;">IP второго сервера (peer)</label>
+    <input type="text" name="peer_ip" placeholder="например 172.16.40.7" required>
+
+    <label style="margin-top:14px;">Виртуальный IP (VIP)</label>
+    <input type="text" name="vip" placeholder="например 172.16.40.8" required>
+    <p class="hint">Один и тот же адрес указывается на обоих серверах — это общий плавающий адрес пары.</p>
+
+    <label style="margin-top:14px;">Маска сети (CIDR, число)</label>
+    <input type="text" name="cidr" placeholder="например 22" required>
+
+    <label style="margin-top:14px;">Сетевой интерфейс</label>
+    <select name="iface" required>
+        {% for i in interfaces %}
+        <option value="{{ i.iface }}">{{ i.iface }} ({{ i.ip }})</option>
+        {% endfor %}
+    </select>
+
+    <label style="margin-top:14px;">Пароль VRRP-аутентификации (до 8 символов)</label>
+    <input type="text" name="vrrp_pass" maxlength="8" required>
+    <p class="hint">Один и тот же пароль на обоих серверах.</p>
+
+    <label style="margin-top:14px;">Пароль пользователя репликации MySQL</label>
+    <input type="text" name="repl_pass" required>
+    <p class="hint">Один и тот же пароль на обоих серверах. Пользователь создаётся автоматически на master.</p>
+
+    <h3 style="margin-top:24px;font-size:15px;color:#556;">Автоматическая настройка доступа к соседу (необязательно)</h3>
+    <p class="hint">Если SSH-ключ к второму серверу ещё не настроен вручную — заполните поля ниже, и
+        настройка сама разложит ключ и поправит firewall на соседе через обычного администратора
+        (не root). Пароль нигде не сохраняется, используется только для этого запуска.
+        Оставьте пустыми, если ключ уже настроен вручную.</p>
+
+    <label>Логин администратора второго сервера</label>
+    <input type="text" name="peer_user" placeholder="например тот же, под которым вы обычно заходите по SSH">
+
+    <label style="margin-top:14px;">Пароль администратора второго сервера</label>
+    <input type="password" name="peer_password">
+
+    <button type="submit" class="btn-primary" style="margin-top:20px;">Запустить настройку</button>
+</form>
+
+<script>
+// Автоматически подставляет CIDR и интерфейс по выбранному локальному IP,
+// чтобы не приходилось вручную дублировать то, что уже видно в списке.
+document.querySelector('select[name="local_ip"]').addEventListener('change', function () {
+    var opt = this.selectedOptions[0];
+    var cidr = opt.getAttribute('data-cidr');
+    var iface = opt.getAttribute('data-iface');
+    if (cidr) document.querySelector('input[name="cidr"]').value = cidr;
+    if (iface) document.querySelector('select[name="iface"]').value = iface;
+});
+</script>
+{% endblock %}

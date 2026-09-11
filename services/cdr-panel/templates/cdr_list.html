@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+{% block title %}CDR и записи{% endblock %}
+{% block content %}
+
+{% if db_error %}
+<div class="flash flash-error">
+    Не удалось получить данные из базы CDR: {{ db_error }}
+</div>
+{% endif %}
+
+<form method="get" class="filters">
+    <div class="filters-row">
+        <div class="filter-field">
+            <label>С</label>
+            <input type="datetime-local" name="date_from" value="{{ filters.date_from | replace(' ', 'T') }}">
+        </div>
+        <div class="filter-field">
+            <label>По</label>
+            <input type="datetime-local" name="date_to" value="{{ filters.date_to | replace(' ', 'T') }}">
+        </div>
+        <div class="filter-field">
+            <label>Вызывающий номер</label>
+            <input type="text" name="src" value="{{ filters.src }}">
+        </div>
+        <div class="filter-field">
+            <label>Вызываемый номер</label>
+            <input type="text" name="dst" value="{{ filters.dst }}">
+        </div>
+    </div>
+    <div class="filters-row">
+        <div class="filter-field">
+            <label>Длительность от (с)</label>
+            <input type="number" name="min_duration" value="{{ filters.min_duration or '' }}" min="0">
+        </div>
+        <div class="filter-field">
+            <label>Статус</label>
+            <select name="disposition">
+                <option value="">Все</option>
+                {% for code, label in disposition_labels.items() %}
+                <option value="{{ code }}" {% if filters.disposition == code %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="filter-field">
+            <label>Линия</label>
+            <select name="line">
+                <option value="">Все</option>
+                {% for l in lines %}
+                <option value="{{ l }}" {% if filters.line == l %}selected{% endif %}>{{ l }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="filter-field">
+            <label>Тип вызова</label>
+            <select name="call_type">
+                <option value="">Все</option>
+                {% for code, label in call_type_labels.items() %}
+                <option value="{{ code }}" {% if filters.call_type == code %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="filter-field filter-submit">
+            <label>&nbsp;</label>
+            <button type="submit">Поиск</button>
+            <a href="{{ url_for('cdr_list') }}" class="btn-secondary">Сбросить</a>
+        </div>
+    </div>
+</form>
+
+<div class="results-summary">Найдено записей: {{ total }}</div>
+
+<table class="cdr-table">
+    <thead>
+        <tr>
+            <th>Время</th>
+            <th>Вызывающий номер</th>
+            <th>Вызываемый номер</th>
+            <th>Длительность (с)</th>
+            <th>Статус</th>
+            <th>Тип</th>
+            <th>Линия</th>
+            <th>Запись</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for row in rows %}
+        <tr>
+            <td>{{ row.calldate }}</td>
+            <td>{{ row.src }}{% if row.clid and row.clid != row.src %} <span class="dim">({{ row.clid }})</span>{% endif %}</td>
+            <td>{{ row.dst }}</td>
+            <td>{{ row.billsec }}</td>
+            <td><span class="badge badge-{{ row.disposition | lower | replace(' ', '-') }}">{{ row.disposition_label }}</span></td>
+            <td>{{ row.call_type_label }}</td>
+            <td>{{ row.line or '—' }}</td>
+            <td>
+                {% if row.recording_exists %}
+                <span class="recording-actions">
+                <a href="{{ url_for('play_recording', recordingfile=row.recordingfile) }}" target="_blank" title="Прослушать" class="icon-btn">▶</a>
+                <a href="{{ url_for('download_recording', recordingfile=row.recordingfile) }}" title="Скачать" class="icon-btn">⬇</a>
+                {% if is_admin %}
+                <form method="post" action="{{ url_for('delete_recording', recordingfile=row.recordingfile) }}" class="inline-form" onsubmit="return confirm('Удалить запись безвозвратно?');">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                    <button type="submit" class="icon-btn-delete" title="Удалить запись">🗑</button>
+                </form>
+                {% endif %}
+                </span>
+                {% else %}
+                <span class="dim">—</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="8" class="empty-state">Ничего не найдено</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% if total_pages > 1 %}
+<div class="pagination">
+    {% set args = request.args.to_dict() %}
+    {% if page > 1 %}
+        {% set _ = args.update({'page': page - 1}) %}
+        <a href="{{ url_for('cdr_list', **args) }}">← Назад</a>
+    {% endif %}
+    <span>Страница {{ page }} из {{ total_pages }}</span>
+    {% if page < total_pages %}
+        {% set _ = args.update({'page': page + 1}) %}
+        <a href="{{ url_for('cdr_list', **args) }}">Вперёд →</a>
+    {% endif %}
+</div>
+{% endif %}
+
+{% endblock %}
